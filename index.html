@@ -1,0 +1,3711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#020501">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>TACLINK-7 // SECURE OPS</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   TACLINK-7  |  SECURE FIELD COMMUNICATIONS SYSTEM
+   CLASSIFICATION: TOP SECRET // NOFORN // SI // TK
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+/* ── CSS DESIGN TOKENS ── */
+:root {
+  /* Core palette */
+  --bg-0:        #010301;
+  --bg-1:        #030804;
+  --bg-2:        #060d05;
+  --bg-3:        #0a1508;
+  --bg-4:        #0d1c0b;
+
+  /* Panel surfaces */
+  --surface-1:   #081005;
+  --surface-2:   #0c1809;
+  --surface-3:   #11200e;
+
+  /* Border hierarchy */
+  --bord-0:      #0f1e0c;
+  --bord-1:      #182e12;
+  --bord-2:      #1f3c18;
+  --bord-3:      #2a521f;
+
+  /* Green spectrum */
+  --g-ultra:     #00ff41;
+  --g-bright:    #39ff14;
+  --g-mid:       #22cc0a;
+  --g-dim:       #18880a;
+  --g-faint:     #0d4a05;
+  --g-ghost:     rgba(57,255,20,0.06);
+  --g-glow:      rgba(57,255,20,0.55);
+  --g-glow2:     rgba(57,255,20,0.20);
+
+  /* Amber spectrum */
+  --a-bright:    #ffb800;
+  --a-mid:       #cc8a00;
+  --a-dim:       #7a5200;
+  --a-faint:     rgba(255,184,0,0.08);
+
+  /* Red spectrum */
+  --r-bright:    #ff2a2a;
+  --r-mid:       #cc1111;
+  --r-faint:     rgba(255,42,42,0.10);
+
+  /* Cyan spectrum */
+  --c-bright:    #00e5ff;
+  --c-dim:       #006a78;
+  --c-faint:     rgba(0,229,255,0.08);
+
+  /* Text hierarchy */
+  --t-0:         #c8e8b8;
+  --t-1:         #96c080;
+  --t-2:         #5a8845;
+  --t-3:         #335c22;
+  --t-4:         #1e3a12;
+
+  /* Typography */
+  --font-mono:   'Share Tech Mono', 'Courier New', monospace;
+  --font-orb:    'Orbitron', sans-serif;
+  --font-raj:    'Rajdhani', sans-serif;
+
+  /* Spacing */
+  --gap-xs:  3px;
+  --gap-sm:  6px;
+  --gap-md:  10px;
+  --gap-lg:  16px;
+  --gap-xl:  24px;
+
+  /* Radii */
+  --r-sm:  2px;
+  --r-md:  4px;
+  --r-lg:  6px;
+
+  /* Transitions */
+  --tr-fast:  0.12s ease;
+  --tr-mid:   0.25s ease;
+  --tr-slow:  0.45s ease;
+}
+
+/* ── GLOBAL RESET ── */
+*, *::before, *::after {
+  margin: 0; padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+html {
+  height: 100%;
+  font-size: 10px;
+}
+
+body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-0);
+  color: var(--t-1);
+  font-family: var(--font-mono);
+  touch-action: none;
+  position: relative;
+}
+
+/* ── ATMOSPHERIC OVERLAYS ── */
+/* Scanline effect */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px, transparent 3px,
+    rgba(0,0,0,0.12) 3px, rgba(0,0,0,0.12) 4px
+  );
+  pointer-events: none;
+  z-index: 9990;
+}
+
+/* Vignette */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 50%,
+    rgba(0,0,0,0.65) 100%
+  );
+  pointer-events: none;
+  z-index: 9989;
+}
+
+/* ── BOOT SCREEN ── */
+#boot-screen {
+  position: fixed; inset: 0;
+  background: var(--bg-0);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px;
+  z-index: 9999;
+  transition: opacity 0.6s ease;
+}
+#boot-screen.fade-out { opacity: 0; pointer-events: none; }
+
+.boot-logo {
+  font-family: var(--font-orb);
+  font-size: 3.2rem;
+  font-weight: 900;
+  color: var(--g-bright);
+  letter-spacing: 0.3em;
+  text-shadow: 0 0 40px var(--g-glow), 0 0 80px rgba(57,255,20,0.2);
+  animation: bootPulse 1.5s ease-in-out infinite;
+}
+@keyframes bootPulse {
+  0%,100% { text-shadow: 0 0 40px var(--g-glow), 0 0 80px rgba(57,255,20,0.2); }
+  50%      { text-shadow: 0 0 20px var(--g-glow2); }
+}
+.boot-sub {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  letter-spacing: 0.25em;
+  color: var(--t-3);
+}
+.boot-log {
+  width: 260px;
+  border: 1px solid var(--bord-1);
+  border-radius: var(--r-md);
+  padding: 10px;
+  background: var(--surface-1);
+}
+.boot-log-line {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--t-3);
+  line-height: 1.8;
+  display: flex; gap: 8px; align-items: center;
+}
+.boot-log-line.ok { color: var(--g-dim); }
+.boot-log-line.warn { color: var(--a-mid); }
+.boot-log-line::before { content: '>>'; color: var(--g-dim); flex-shrink: 0; }
+.boot-bar-wrap {
+  width: 260px; height: 3px;
+  background: var(--bord-1); border-radius: 2px; overflow: hidden;
+}
+.boot-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--g-faint), var(--g-bright));
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+.boot-classif {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--a-mid);
+  border: 1px solid var(--a-dim);
+  padding: 3px 12px;
+  border-radius: var(--r-sm);
+  animation: classifBlink 2.5s infinite;
+}
+@keyframes classifBlink {
+  0%,100% { opacity: 1; border-color: var(--a-dim); }
+  50%      { opacity: 0.4; border-color: transparent; }
+}
+
+/* ── MAIN APP SHELL ── */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── TOP BAR ── */
+#topbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--bord-2);
+  position: relative;
+  z-index: 100;
+}
+
+.tb-left {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.tb-callsign {
+  font-family: var(--font-orb);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--g-bright);
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-shadow: 0 0 12px var(--g-glow2);
+}
+.tb-designator {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--t-3);
+}
+
+.tb-center {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 3px;
+}
+.classif-badge {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  color: var(--a-bright);
+  border: 1px solid var(--a-dim);
+  background: var(--a-faint);
+  padding: 2px 8px;
+  border-radius: var(--r-sm);
+  animation: classifBlink 3s infinite;
+}
+.utc-clock {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: var(--t-3);
+}
+
+.tb-right {
+  display: flex; align-items: center; gap: 10px;
+}
+
+/* Signal strength indicators */
+.sig-cluster { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.sig-bars { display: flex; gap: 2px; align-items: flex-end; height: 12px; }
+.sig-bar {
+  width: 3px; border-radius: 1px;
+  background: var(--bord-2); transition: background var(--tr-mid);
+}
+.sig-bar:nth-child(1) { height: 3px; }
+.sig-bar:nth-child(2) { height: 6px; }
+.sig-bar:nth-child(3) { height: 9px; }
+.sig-bar:nth-child(4) { height: 12px; }
+.sig-bars.live .sig-bar { background: var(--g-bright); filter: drop-shadow(0 0 2px var(--g-bright)); }
+.sig-bars.live .sig-bar:nth-child(4) { background: var(--bord-2); filter: none; }
+.sig-bars.weak .sig-bar:nth-child(1),
+.sig-bars.weak .sig-bar:nth-child(2) { background: var(--a-mid); }
+.net-type {
+  font-size: 0.6rem; letter-spacing: 0.12em; color: var(--t-3);
+}
+
+/* Encrypt indicator */
+.enc-indicator {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 2px;
+}
+.enc-light {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--t-4);
+  transition: all var(--tr-mid);
+}
+.enc-light.active {
+  background: var(--g-bright);
+  box-shadow: 0 0 8px var(--g-glow);
+  animation: encPulse 2s ease-in-out infinite;
+}
+@keyframes encPulse {
+  0%,100% { box-shadow: 0 0 8px var(--g-glow); }
+  50%      { box-shadow: 0 0 16px var(--g-glow), 0 0 32px var(--g-glow2); }
+}
+.enc-label { font-size: 0.55rem; letter-spacing: 0.15em; color: var(--t-4); }
+
+/* Menu button */
+.menu-btn {
+  display: flex; flex-direction: column; gap: 4px;
+  background: none; border: 1px solid var(--bord-1);
+  padding: 7px 9px; border-radius: var(--r-md);
+  cursor: pointer; transition: all var(--tr-fast);
+}
+.menu-btn:active { transform: scale(0.95); background: var(--g-ghost); }
+.menu-bar {
+  width: 18px; height: 1.5px;
+  background: var(--t-2); border-radius: 1px;
+  transition: all var(--tr-mid);
+}
+.menu-btn.open .menu-bar:nth-child(1) { transform: rotate(45deg) translate(4px,4px); }
+.menu-btn.open .menu-bar:nth-child(2) { opacity: 0; width: 0; }
+.menu-btn.open .menu-bar:nth-child(3) { transform: rotate(-45deg) translate(4px,-4px); }
+
+/* ── STATUS STRIP ── */
+#status-strip {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 14px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--bord-1);
+  min-height: 28px;
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--t-4); flex-shrink: 0;
+  transition: all var(--tr-mid);
+}
+.status-dot.live   { background: var(--g-bright); box-shadow: 0 0 7px var(--g-glow); }
+.status-dot.tx     { background: var(--a-bright); box-shadow: 0 0 7px rgba(255,184,0,0.7); animation: stBlink 0.4s infinite; }
+.status-dot.err    { background: var(--r-bright); box-shadow: 0 0 7px rgba(255,42,42,0.7); }
+.status-dot.warn   { background: var(--a-bright); box-shadow: 0 0 5px rgba(255,184,0,0.5); }
+@keyframes stBlink { 50% { opacity: 0.2; } }
+#status-msg {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--t-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.status-badges { display: flex; gap: 5px; flex-shrink: 0; }
+.sbadge {
+  font-family: var(--font-mono);
+  font-size: 0.6rem; letter-spacing: 0.1em;
+  border: 1px solid var(--bord-2); border-radius: var(--r-sm);
+  padding: 1px 6px; color: var(--t-3);
+}
+.sbadge.green  { color: var(--g-dim); border-color: var(--g-faint); }
+.sbadge.amber  { color: var(--a-mid); border-color: var(--a-dim); }
+
+/* ── MAIN CONTENT AREA ── */
+#main-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px 14px 14px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── FREQ + CHANNEL DISPLAY ── */
+.freq-block {
+  display: flex; flex-direction: column; align-items: center;
+  background: var(--surface-1);
+  border: 1px solid var(--bord-2);
+  border-radius: var(--r-md);
+  padding: 8px 24px;
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+}
+.freq-block::before {
+  content: 'FREQ';
+  position: absolute; top: 4px; left: 10px;
+  font-size: 0.6rem; letter-spacing: 0.22em; color: var(--t-4);
+}
+.freq-block::after {
+  content: 'ENCRYPTED';
+  position: absolute; top: 4px; right: 10px;
+  font-size: 0.6rem; letter-spacing: 0.15em; color: var(--g-faint);
+}
+.freq-value {
+  font-family: var(--font-orb);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--t-0);
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+}
+.freq-unit {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.22em;
+  color: var(--t-3);
+  margin-top: 2px;
+}
+
+/* ── TELEM STRIP ── */
+.telem-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  width: 100%;
+  max-width: 420px;
+}
+.tcel {
+  background: var(--surface-1);
+  border: 1px solid var(--bord-1);
+  border-radius: var(--r-sm);
+  padding: 5px 6px;
+  text-align: center;
+}
+.tcel-lbl { font-size: 0.55rem; letter-spacing: 0.18em; color: var(--t-4); margin-bottom: 3px; display: block; }
+.tcel-val { font-size: 0.85rem; letter-spacing: 0.08em; color: var(--t-2); }
+.tcel-val.on   { color: var(--g-bright); text-shadow: 0 0 6px var(--g-glow2); }
+.tcel-val.warn { color: var(--a-bright); }
+.tcel-val.err  { color: var(--r-bright); }
+
+/* ── PTT BUTTON ── */
+.ptt-zone {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px;
+}
+
+.ptt-outer-ring {
+  position: relative;
+  width: 200px; height: 200px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Animated rings when transmitting */
+.ptt-ring {
+  position: absolute; border-radius: 50%;
+  border: 1px solid var(--g-bright);
+  width: 100%; height: 100%;
+  opacity: 0; pointer-events: none;
+}
+#ptt-btn.transmitting ~ .ptt-ring:nth-child(1) { animation: pttRipple 1.1s ease-out infinite; }
+#ptt-btn.transmitting ~ .ptt-ring:nth-child(2) { animation: pttRipple 1.1s ease-out infinite 0.37s; }
+#ptt-btn.transmitting ~ .ptt-ring:nth-child(3) { animation: pttRipple 1.1s ease-out infinite 0.74s; }
+@keyframes pttRipple {
+  0%   { transform: scale(0.95); opacity: 0.6; }
+  100% { transform: scale(1.85); opacity: 0; }
+}
+
+/* Tactical reticle — SVG arc decorators */
+.ptt-reticle {
+  position: absolute; width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+#ptt-btn {
+  width: 160px; height: 160px;
+  border-radius: 50%; border: none;
+  cursor: pointer; position: relative; z-index: 2;
+  transition: transform 0.07s ease, box-shadow 0.14s ease;
+
+  /* Layered depth background */
+  background:
+    radial-gradient(circle at 36% 28%, rgba(57,255,20,0.07) 0%, transparent 55%),
+    radial-gradient(circle at 65% 75%, rgba(0,0,0,0.4) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, #111e0c 0%, #0a1507 45%, #060e04 75%, #030701 100%);
+  box-shadow:
+    0 0 0 3px #0a1507,
+    0 0 0 6px #070e05,
+    0 0 0 7px rgba(57,255,20,0.06),
+    0 8px 32px rgba(0,0,0,0.95),
+    inset 0 1px 0 rgba(57,255,20,0.06),
+    inset 0 -2px 4px rgba(0,0,0,0.6);
+
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px;
+}
+
+/* Crosshair overlay */
+#ptt-btn::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: 50%;
+  background:
+    linear-gradient(rgba(57,255,20,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(57,255,20,0.06) 1px, transparent 1px);
+  background-size: 100% 50%, 50% 100%;
+  background-position: 50% 0, 0 50%;
+}
+
+.ptt-icon { width: 36px; height: 36px; flex-shrink: 0; }
+.ptt-icon path { fill: var(--t-3); transition: fill 0.14s ease; }
+.ptt-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem; letter-spacing: 0.24em;
+  color: var(--t-3);
+  transition: color 0.14s ease;
+}
+
+/* Transmitting state */
+#ptt-btn.transmitting {
+  transform: scale(0.95);
+  background:
+    radial-gradient(circle at 36% 28%, rgba(57,255,20,0.22) 0%, transparent 55%),
+    radial-gradient(circle at 50% 50%, #1a2f10 0%, #112208 45%, #0c1a06 75%, #060e04 100%);
+  box-shadow:
+    0 0 0 3px rgba(57,255,20,0.28),
+    0 0 0 6px rgba(57,255,20,0.08),
+    0 0 0 7px rgba(57,255,20,0.04),
+    0 8px 40px rgba(57,255,20,0.32),
+    0 0 100px rgba(57,255,20,0.12),
+    inset 0 1px 0 rgba(57,255,20,0.15),
+    inset 0 -2px 4px rgba(0,0,0,0.4);
+}
+#ptt-btn.transmitting .ptt-icon path { fill: var(--g-bright); }
+#ptt-btn.transmitting .ptt-label { color: var(--g-bright); text-shadow: 0 0 10px var(--g-glow); }
+#ptt-btn:disabled { opacity: 0.20; cursor: not-allowed; }
+#ptt-btn:disabled::before { display: none; }
+
+/* Tap hint */
+.ptt-hint {
+  font-family: var(--font-mono);
+  font-size: 0.68rem; letter-spacing: 0.18em;
+  color: var(--a-mid);
+  animation: hintPulse 1.8s ease-in-out infinite;
+  text-align: center;
+  display: none;
+}
+.ptt-hint.show { display: block; }
+@keyframes hintPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+/* ── VU METER ── */
+.vu-meter {
+  display: flex; gap: 3px; align-items: flex-end;
+  height: 22px; opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.vu-meter.active { opacity: 1; }
+.vu-bar {
+  width: 5px; border-radius: 1px;
+  background: var(--g-bright); height: 3px;
+  transition: height 0.05s ease;
+}
+
+/* ── WAVEFORM CANVAS ── */
+.wave-canvas {
+  width: 100%; max-width: 320px; height: 30px;
+  border-radius: var(--r-sm);
+  background: var(--surface-1);
+  border: 1px solid var(--bord-1);
+  display: block;
+}
+
+/* ── QUICK ACTION ROW ── */
+.quick-actions {
+  display: flex; gap: 6px; width: 100%; max-width: 340px;
+}
+.qa-btn {
+  flex: 1; padding: 9px 6px;
+  background: var(--surface-1);
+  border: 1px solid var(--bord-1);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  transition: all var(--tr-fast);
+  position: relative;
+  overflow: hidden;
+}
+.qa-btn:active { transform: scale(0.96); background: var(--g-ghost); }
+.qa-btn.primary { border-color: var(--g-faint); background: rgba(57,255,20,0.05); }
+.qa-btn-icon {
+  font-size: 1.1rem; color: var(--t-2);
+  font-family: var(--font-mono);
+}
+.qa-btn-lbl { font-size: 0.6rem; letter-spacing: 0.18em; color: var(--t-3); }
+.qa-btn.has-badge::after {
+  content: attr(data-badge);
+  position: absolute; top: 4px; right: 6px;
+  font-size: 0.55rem; letter-spacing: 0.1em;
+  color: var(--a-bright);
+  font-family: var(--font-mono);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SLIDE-OUT PANEL (RIGHT DRAWER)
+   ═══════════════════════════════════════════════════════════════ */
+#panel-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 500;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--tr-mid);
+}
+#panel-overlay.open { opacity: 1; pointer-events: all; }
+
+#side-panel {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(340px, 90vw);
+  background: var(--bg-1);
+  border-left: 1px solid var(--bord-2);
+  z-index: 600;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--tr-slow);
+  overflow: hidden;
+}
+#side-panel.open { transform: translateX(0); }
+
+.panel-topbar {
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--bord-2);
+}
+.panel-title {
+  font-family: var(--font-orb);
+  font-size: 1rem; font-weight: 600;
+  letter-spacing: 0.18em; color: var(--g-dim);
+}
+.panel-close {
+  background: none; border: 1px solid var(--bord-1);
+  color: var(--t-2); width: 30px; height: 30px;
+  border-radius: var(--r-md); cursor: pointer;
+  font-family: var(--font-mono); font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--tr-fast);
+}
+.panel-close:active { background: var(--r-faint); border-color: var(--r-mid); color: var(--r-bright); }
+
+/* Panel inner tabs */
+.panel-tabs {
+  flex-shrink: 0;
+  display: flex; border-bottom: 1px solid var(--bord-1);
+  background: var(--surface-1);
+}
+.ptab {
+  flex: 1; padding: 8px 4px;
+  background: none; border: none; border-bottom: 2px solid transparent;
+  font-family: var(--font-mono); font-size: 0.65rem;
+  letter-spacing: 0.14em; color: var(--t-3);
+  cursor: pointer; transition: all var(--tr-fast);
+  text-align: center;
+}
+.ptab.active { color: var(--g-bright); border-bottom-color: var(--g-bright); }
+
+.panel-pages { flex: 1; overflow-y: auto; overflow-x: hidden; }
+.panel-pages::-webkit-scrollbar { width: 3px; }
+.panel-pages::-webkit-scrollbar-thumb { background: var(--bord-2); }
+.panel-page { display: none; padding: 10px 12px; gap: 8px; flex-direction: column; }
+.panel-page.active { display: flex; }
+
+/* ── PANEL CARD ── */
+.pcard {
+  background: var(--surface-2);
+  border: 1px solid var(--bord-2);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.pcard-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 10px;
+  background: var(--g-ghost);
+  border-bottom: 1px solid var(--bord-1);
+}
+.pcard-title {
+  font-size: 0.65rem; letter-spacing: 0.2em; color: var(--g-dim);
+  display: flex; align-items: center; gap: 6px;
+}
+.pcard-title::before {
+  content: '';
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--g-dim);
+  animation: stBlink 2s infinite;
+}
+.pcard-body { padding: 10px; }
+.pcard-subtitle {
+  font-size: 0.6rem; letter-spacing: 0.1em; color: var(--t-4);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONNECTION PANEL (MODAL)
+   ═══════════════════════════════════════════════════════════════ */
+#conn-modal {
+  position: fixed; inset: 0;
+  display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(0,0,0,0.7);
+  z-index: 800;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--tr-mid);
+}
+#conn-modal.open { opacity: 1; pointer-events: all; }
+
+.conn-sheet {
+  width: 100%; max-width: 460px;
+  max-height: 80vh;
+  background: var(--bg-2);
+  border-top: 1px solid var(--bord-3);
+  border-radius: 10px 10px 0 0;
+  display: flex; flex-direction: column;
+  transform: translateY(100%);
+  transition: transform var(--tr-slow);
+  overflow: hidden;
+}
+#conn-modal.open .conn-sheet { transform: translateY(0); }
+
+.conn-sheet-hdr {
+  flex-shrink: 0;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--bord-2);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.conn-sheet-title {
+  font-family: var(--font-orb);
+  font-size: 1rem; font-weight: 600;
+  letter-spacing: 0.15em; color: var(--g-dim);
+}
+.sheet-close {
+  background: none; border: 1px solid var(--bord-1);
+  color: var(--t-2); width: 30px; height: 30px;
+  border-radius: var(--r-md); cursor: pointer;
+  font-family: var(--font-mono); font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Step tabs in connection sheet */
+.step-tabs {
+  flex-shrink: 0;
+  display: flex; border-bottom: 1px solid var(--bord-1);
+  background: var(--surface-1);
+}
+.step-tab {
+  flex: 1; padding: 8px 4px;
+  background: none; border: none; border-bottom: 2px solid transparent;
+  font-family: var(--font-mono); font-size: 0.65rem;
+  letter-spacing: 0.1em; color: var(--t-3);
+  cursor: pointer; transition: all var(--tr-fast);
+  text-align: center; position: relative;
+}
+.step-tab .snum {
+  display: block;
+  font-family: var(--font-raj);
+  font-size: 1.1rem; font-weight: 600;
+  color: inherit; margin-bottom: 2px;
+}
+.step-tab.active { color: var(--g-bright); border-bottom-color: var(--g-bright); }
+.step-tab.done { color: var(--t-3); }
+.step-tab.done .snum { color: var(--g-faint); }
+.step-tab.done::after {
+  content: '[OK]'; position: absolute; top: 4px; right: 4px;
+  font-size: 0.5rem; color: var(--g-faint);
+}
+
+/* Step bodies */
+.conn-body { flex: 1; overflow-y: auto; }
+.conn-body::-webkit-scrollbar { width: 3px; }
+.conn-body::-webkit-scrollbar-thumb { background: var(--bord-2); }
+.step-body { padding: 12px 14px; display: none; flex-direction: column; gap: 10px; }
+.step-body.active { display: flex; }
+
+.step-inst {
+  font-family: var(--font-mono);
+  font-size: 0.72rem; letter-spacing: 0.08em;
+  color: var(--t-3); line-height: 1.7;
+}
+.step-inst strong { color: var(--t-1); }
+.step-inst .amber { color: var(--a-mid); }
+
+/* Code display box */
+.code-display {
+  font-family: var(--font-mono);
+  font-size: 0.7rem; color: var(--g-mid);
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--bord-2);
+  border-left: 2px solid var(--g-dim);
+  border-radius: var(--r-md);
+  padding: 9px 10px 18px;
+  word-break: break-all; line-height: 1.75;
+  min-height: 54px; cursor: pointer;
+  position: relative;
+  transition: border-color var(--tr-fast);
+}
+.code-display:hover { border-left-color: var(--g-bright); }
+.code-display.empty { color: var(--t-4); border-left-color: var(--t-4); font-size: 0.7rem; }
+.code-display.copied { border-left-color: var(--g-ultra); background: rgba(0,255,65,0.05); }
+.code-hint {
+  position: absolute; bottom: 5px; right: 8px;
+  font-size: 0.6rem; letter-spacing: 0.12em; color: var(--t-4);
+}
+
+/* Bravo confirm bar */
+#bravo-confirm-bar {
+  display: none; flex-direction: column; gap: 6px;
+  padding: 8px 10px;
+  background: rgba(255,184,0,0.06);
+  border: 1px solid rgba(255,184,0,0.22);
+  border-radius: var(--r-md);
+}
+#bravo-confirm-bar.show { display: flex; }
+.bcb-text { font-size: 0.68rem; letter-spacing: 0.1em; color: var(--a-bright); }
+
+textarea.code-input {
+  width: 100%; -webkit-user-select: text; user-select: text;
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--t-0);
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--bord-2);
+  border-left: 2px solid var(--a-mid);
+  border-radius: var(--r-md);
+  padding: 9px 10px; resize: none; outline: none;
+  height: 70px; line-height: 1.7;
+  caret-color: var(--g-bright);
+  transition: border-color var(--tr-fast);
+}
+textarea.code-input:focus { border-left-color: var(--g-bright); }
+textarea.code-input::placeholder { color: var(--t-4); }
+
+/* Toggle / save row */
+.tog-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.68rem; letter-spacing: 0.1em; color: var(--t-4);
+  cursor: pointer;
+}
+.tog-switch {
+  width: 26px; height: 14px; border-radius: 7px;
+  background: var(--bord-2); position: relative;
+  transition: background var(--tr-mid); flex-shrink: 0;
+}
+.tog-switch::after {
+  content: '';
+  position: absolute; top: 2px; left: 2px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--t-4); transition: all var(--tr-mid);
+}
+.tog-switch.on { background: rgba(57,255,20,0.3); }
+.tog-switch.on::after { left: 14px; background: var(--g-bright); }
+
+/* ── BUTTONS ── */
+.btn-row { display: flex; gap: 6px; }
+.mbtn {
+  flex: 1; padding: 9px 8px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
+  border-radius: var(--r-md); cursor: pointer;
+  transition: all var(--tr-fast);
+  border: 1px solid var(--bord-2);
+  background: transparent; color: var(--t-3);
+}
+.mbtn:active { transform: scale(0.97); }
+.mbtn.go { background: rgba(57,255,20,0.08); border-color: var(--g-faint); color: var(--g-bright); }
+.mbtn.go:hover { background: rgba(57,255,20,0.15); }
+.mbtn.amber { background: rgba(255,184,0,0.08); border-color: var(--a-dim); color: var(--a-bright); }
+.mbtn.red   { background: var(--r-faint); border-color: var(--r-mid); color: var(--r-bright); }
+
+/* ═══════════════════════════════════════════════════════════════
+   RADAR PANEL
+   ═══════════════════════════════════════════════════════════════ */
+.radar-layout { display: flex; gap: 10px; align-items: flex-start; }
+#radar-canvas {
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #010502;
+  border: 1px solid var(--bord-2);
+  box-shadow: 0 0 0 1px var(--bord-1), inset 0 0 30px rgba(0,0,0,0.9), 0 0 20px rgba(57,255,20,0.04);
+}
+.radar-data { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.rd-row { display: flex; justify-content: space-between; align-items: center; padding: 2px 0; }
+.rd-lbl { font-size: 0.65rem; letter-spacing: 0.15em; color: var(--t-4); }
+.rd-val { font-size: 0.7rem; letter-spacing: 0.1em; color: var(--t-1); }
+.rd-val.g  { color: var(--g-mid); text-shadow: 0 0 5px var(--g-glow2); }
+.rd-val.a  { color: var(--a-mid); }
+.rd-val.r  { color: var(--r-bright); }
+
+/* Contact list */
+.contact-list { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
+.contact-entry {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 6px;
+  background: var(--surface-1);
+  border: 1px solid var(--bord-1);
+  border-radius: var(--r-sm);
+  font-size: 0.62rem; letter-spacing: 0.1em;
+}
+.contact-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.contact-dot.local { background: var(--g-bright); box-shadow: 0 0 4px var(--g-glow); }
+.contact-dot.stun  { background: var(--a-mid); }
+.contact-dot.peer  { background: var(--c-bright); box-shadow: 0 0 4px rgba(0,229,255,0.6); }
+.contact-dot.relay { background: var(--r-bright); }
+.contact-label { color: var(--t-2); flex: 1; }
+.contact-ip { color: var(--t-4); font-size: 0.6rem; }
+
+/* ═══════════════════════════════════════════════════════════════
+   NETWORK TOPOLOGY PANEL
+   ═══════════════════════════════════════════════════════════════ */
+#topo-canvas {
+  width: 100%; height: 120px;
+  border-radius: var(--r-md);
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--bord-1);
+  display: block;
+}
+.topo-legend {
+  display: flex; gap: 12px; flex-wrap: wrap; margin-top: 5px;
+}
+.topo-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.6rem; letter-spacing: 0.1em; color: var(--t-3);
+}
+.topo-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SYSTEMS HEALTH
+   ═══════════════════════════════════════════════════════════════ */
+.health-grid { display: flex; flex-direction: column; gap: 6px; }
+.hbar-row {
+  display: flex; align-items: center; gap: 8px;
+}
+.hbar-lbl {
+  font-size: 0.65rem; letter-spacing: 0.12em;
+  color: var(--t-4); width: 54px; text-align: right; flex-shrink: 0;
+}
+.hbar-track {
+  flex: 1; height: 4px;
+  background: var(--bord-1); border-radius: 2px; overflow: hidden;
+}
+.hbar-fill {
+  height: 100%; border-radius: 2px;
+  transition: width 0.8s ease, background 0.5s ease;
+}
+.hbar-val {
+  font-size: 0.65rem; letter-spacing: 0.08em;
+  color: var(--t-2); width: 32px; flex-shrink: 0;
+  text-align: right;
+}
+
+/* ── SPECTRUM ANALYZER ── */
+#spec-canvas {
+  width: 100%; height: 60px;
+  border-radius: var(--r-sm);
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--bord-1);
+  display: block;
+}
+
+/* ─ WEBRTC STATS TABLE ─ */
+.stats-table { display: flex; flex-direction: column; gap: 4px; }
+.stat-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 3px 0; border-bottom: 1px solid var(--bord-0);
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-key { font-size: 0.65rem; letter-spacing: 0.1em; color: var(--t-4); }
+.stat-val { font-size: 0.65rem; letter-spacing: 0.08em; color: var(--t-1); }
+.stat-val.good { color: var(--g-dim); }
+.stat-val.warn { color: var(--a-mid); }
+.stat-val.bad  { color: var(--r-bright); }
+
+/* ═══════════════════════════════════════════════════════════════
+   INTEL / CIPHER PANEL
+   ═══════════════════════════════════════════════════════════════ */
+.cipher-key-wrap {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.ck-label { font-size: 0.65rem; letter-spacing: 0.15em; color: var(--t-4); }
+.ck-row { display: flex; gap: 6px; align-items: center; }
+.ck-input {
+  flex: 1; -webkit-user-select: text; user-select: text;
+  font-family: var(--font-mono); font-size: 0.72rem;
+  color: var(--t-0); background: rgba(0,0,0,0.5);
+  border: 1px solid var(--bord-2);
+  border-left: 2px solid var(--c-dim);
+  border-radius: var(--r-md); padding: 7px 10px;
+  outline: none; caret-color: var(--c-bright);
+}
+.ck-input:focus { border-left-color: var(--c-bright); }
+.key-strength-row {
+  display: flex; gap: 2px; align-items: center;
+}
+.ks-block {
+  width: 10px; height: 10px; border-radius: 1px;
+  background: var(--bord-1); transition: background 0.3s ease;
+}
+
+.intel-algo-row {
+  display: flex; gap: 4px; flex-wrap: wrap;
+}
+.algo-btn {
+  padding: 4px 10px; font-family: var(--font-mono);
+  font-size: 0.6rem; letter-spacing: 0.12em;
+  border: 1px solid var(--bord-2);
+  border-radius: var(--r-sm);
+  background: transparent; color: var(--t-3);
+  cursor: pointer; transition: all var(--tr-fast);
+}
+.algo-btn.active { background: var(--c-faint); border-color: var(--c-dim); color: var(--c-bright); }
+
+textarea.intel-ta {
+  width: 100%; -webkit-user-select: text; user-select: text;
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--t-0); background: rgba(0,0,0,0.5);
+  border: 1px solid var(--bord-2);
+  border-left: 2px solid var(--c-dim);
+  border-radius: var(--r-md); padding: 8px 10px;
+  resize: none; outline: none; height: 66px; line-height: 1.7;
+  caret-color: var(--c-bright); transition: border-color var(--tr-fast);
+}
+textarea.intel-ta:focus { border-left-color: var(--c-bright); }
+textarea.intel-ta::placeholder { color: var(--t-4); }
+
+.intel-out {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  color: var(--c-bright); background: rgba(0,20,30,0.6);
+  border: 1px solid rgba(0,229,255,0.12);
+  border-left: 2px solid var(--c-dim);
+  border-radius: var(--r-md); padding: 8px 10px 18px;
+  word-break: break-all; line-height: 1.75;
+  min-height: 52px; cursor: pointer; position: relative;
+}
+.intel-out.decoded { color: var(--t-0); border-left-color: var(--g-dim); }
+.intel-out .code-hint { color: rgba(0,229,255,0.35); }
+
+/* ═══════════════════════════════════════════════════════════════
+   COMMS LOG
+   ═══════════════════════════════════════════════════════════════ */
+.log-toolbar {
+  display: flex; gap: 5px; align-items: center; margin-bottom: 6px; flex-wrap: wrap;
+}
+.log-filter-btn {
+  padding: 3px 8px;
+  font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.12em;
+  border: 1px solid var(--bord-1); border-radius: var(--r-sm);
+  background: transparent; color: var(--t-4); cursor: pointer;
+  transition: all var(--tr-fast);
+}
+.log-filter-btn.active { background: var(--g-ghost); color: var(--g-dim); border-color: var(--g-faint); }
+.log-clear-btn {
+  margin-left: auto;
+  padding: 3px 8px;
+  font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.12em;
+  border: 1px solid var(--bord-1); border-radius: var(--r-sm);
+  background: transparent; color: var(--t-4); cursor: pointer;
+}
+.log-scroll {
+  max-height: 200px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.log-scroll::-webkit-scrollbar { width: 2px; }
+.log-scroll::-webkit-scrollbar-thumb { background: var(--bord-2); }
+.log-entry {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 3px 0; border-bottom: 1px solid var(--bord-0);
+  font-size: 0.65rem; letter-spacing: 0.07em; line-height: 1.5;
+}
+.log-entry:last-child { border-bottom: none; }
+.log-ts { color: var(--g-faint); flex-shrink: 0; font-size: 0.6rem; }
+.log-tag {
+  flex-shrink: 0; font-size: 0.55rem; letter-spacing: 0.1em;
+  padding: 1px 4px; border-radius: 1px;
+}
+.log-tag.info { background: var(--g-ghost); color: var(--g-dim); }
+.log-tag.warn { background: var(--a-faint); color: var(--a-mid); }
+.log-tag.err  { background: var(--r-faint); color: var(--r-mid); }
+.log-tag.tx   { background: rgba(0,229,255,0.08); color: var(--c-dim); }
+.log-msg { color: var(--t-2); flex: 1; }
+.log-entry.highlight .log-msg { color: var(--g-dim); }
+
+/* ═══════════════════════════════════════════════════════════════
+   SETTINGS PAGE
+   ═══════════════════════════════════════════════════════════════ */
+.setting-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid var(--bord-0);
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-info { display: flex; flex-direction: column; gap: 2px; }
+.setting-name { font-size: 0.72rem; letter-spacing: 0.1em; color: var(--t-1); }
+.setting-desc { font-size: 0.6rem; letter-spacing: 0.08em; color: var(--t-4); }
+.setting-ctrl { flex-shrink: 0; }
+
+.select-ctrl {
+  font-family: var(--font-mono); font-size: 0.65rem;
+  color: var(--t-1); background: var(--surface-2);
+  border: 1px solid var(--bord-2); border-radius: var(--r-sm);
+  padding: 4px 8px; outline: none; cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SAVED SESSION BANNER
+   ═══════════════════════════════════════════════════════════════ */
+#saved-banner {
+  display: none;
+  margin: 0 14px;
+  padding: 8px 12px;
+  background: var(--a-faint);
+  border: 1px solid rgba(255,184,0,0.2);
+  border-radius: var(--r-md);
+  align-items: center; gap: 10px;
+  flex-shrink: 0;
+}
+#saved-banner.show { display: flex; }
+.sb-info { flex: 1; }
+.sb-title { font-size: 0.7rem; letter-spacing: 0.15em; color: var(--a-bright); }
+.sb-sub   { font-size: 0.6rem; letter-spacing: 0.08em; color: var(--t-4); margin-top: 2px; }
+.sb-actions { display: flex; gap: 5px; }
+.sb-btn {
+  font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em;
+  padding: 5px 10px; border-radius: var(--r-sm); border: none; cursor: pointer;
+  transition: all var(--tr-fast); white-space: nowrap;
+}
+.sb-btn.go { background: rgba(255,184,0,0.15); color: var(--a-bright); border: 1px solid var(--a-dim); }
+.sb-btn.cl { background: transparent; color: var(--t-3); border: 1px solid var(--bord-1); }
+
+/* ═══════════════════════════════════════════════════════════════
+   TOAST NOTIFICATIONS
+   ═══════════════════════════════════════════════════════════════ */
+#toast-container {
+  position: fixed; bottom: 20px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column;
+  align-items: center; gap: 6px;
+  z-index: 9998; pointer-events: none;
+  width: min(360px, 90vw);
+}
+.toast {
+  font-family: var(--font-mono);
+  font-size: 0.75rem; letter-spacing: 0.09em;
+  padding: 9px 16px;
+  border-radius: var(--r-md);
+  background: var(--surface-3);
+  border-left: 3px solid var(--g-dim);
+  color: var(--t-1);
+  opacity: 0; transform: translateY(12px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+  max-width: 100%; text-align: center;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.amber { border-left-color: var(--a-mid); }
+.toast.red   { border-left-color: var(--r-mid); }
+
+/* ═══════════════════════════════════════════════════════════════
+   LANDSCAPE MODE
+   ═══════════════════════════════════════════════════════════════ */
+@media (orientation: landscape) {
+  #main-view {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 8px 16px;
+  }
+  .main-left {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 10px;
+    flex-shrink: 0;
+  }
+  .main-right {
+    display: flex; flex-direction: column;
+    gap: 8px; flex: 1; max-width: 260px;
+  }
+  .ptt-outer-ring { width: 170px; height: 170px; }
+  #ptt-btn { width: 140px; height: 140px; }
+  .freq-value { font-size: 1.6rem; }
+  .freq-block { padding: 6px 16px; }
+  .telem-strip { grid-template-columns: repeat(2,1fr); }
+  #topbar { padding: 6px 14px; }
+  .tb-callsign { font-size: 1.2rem; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITY CLASSES
+   ═══════════════════════════════════════════════════════════════ */
+.hidden { display: none !important; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.gap-sm { gap: var(--gap-sm); }
+.gap-md { gap: var(--gap-md); }
+.mt-sm { margin-top: var(--gap-sm); }
+.mt-md { margin-top: var(--gap-md); }
+.w100 { width: 100%; }
+.sep { height: 1px; background: var(--bord-1); margin: 4px 0; }
+.mono { font-family: var(--font-mono); }
+.text-green { color: var(--g-dim); }
+.text-amber { color: var(--a-mid); }
+.text-dim   { color: var(--t-4); font-size: 0.65rem; letter-spacing: 0.08em; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════
+     BOOT SEQUENCE
+════════════════════════════════════════════════════════════ -->
+<div id="boot-screen">
+  <div class="boot-classif">TOP SECRET // NOFORN // SI // TK</div>
+  <div class="boot-logo">TACLINK</div>
+  <div class="boot-sub">SECURE FIELD COMMUNICATIONS SYSTEM v7.0</div>
+  <div class="boot-log" id="boot-log"></div>
+  <div class="boot-bar-wrap"><div class="boot-bar-fill" id="boot-bar" style="width:0%"></div></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     MAIN APPLICATION
+════════════════════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div class="tb-left">
+      <div class="tb-callsign">TACLINK-7</div>
+      <div class="tb-designator">SECURE COMMS // FIELD UNIT</div>
+    </div>
+    <div class="tb-center">
+      <div class="classif-badge">TOP SECRET // NOFORN</div>
+      <div class="utc-clock" id="utc-clock">00:00:00Z</div>
+    </div>
+    <div class="tb-right">
+      <div class="sig-cluster">
+        <div class="sig-bars" id="sig-bars">
+          <div class="sig-bar"></div><div class="sig-bar"></div>
+          <div class="sig-bar"></div><div class="sig-bar"></div>
+        </div>
+        <div class="net-type" id="net-type">—</div>
+      </div>
+      <div class="enc-indicator">
+        <div class="enc-light" id="enc-light"></div>
+        <div class="enc-label">ENC</div>
+      </div>
+      <button class="menu-btn" id="menu-btn" onclick="togglePanel()" aria-label="Menu">
+        <div class="menu-bar"></div>
+        <div class="menu-bar"></div>
+        <div class="menu-bar"></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- STATUS STRIP -->
+  <div id="status-strip">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-msg">OFFLINE — ESTABLISH SECURE CHANNEL TO BEGIN</span>
+    <div class="status-badges">
+      <span class="sbadge green">DTLS-SRTP</span>
+      <span class="sbadge" id="badge-conn">P2P</span>
+    </div>
+  </div>
+
+  <!-- SAVED SESSION BANNER -->
+  <div id="saved-banner">
+    <div class="sb-info">
+      <div class="sb-title">SAVED SESSION FOUND</div>
+      <div class="sb-sub" id="sb-sub">—</div>
+    </div>
+    <div class="sb-actions">
+      <button class="sb-btn go" onclick="reconnectSaved()">RECONNECT</button>
+      <button class="sb-btn cl" onclick="clearSaved()">CLEAR</button>
+    </div>
+  </div>
+
+  <!-- MAIN VIEW -->
+  <div id="main-view">
+
+    <!-- Portrait: single column. Landscape: flex-row split via CSS -->
+    <div class="main-left">
+      <!-- PTT BUTTON -->
+      <div class="ptt-zone">
+        <div class="ptt-outer-ring">
+          <!-- SVG reticle arcs -->
+          <svg class="ptt-reticle" viewBox="0 0 200 200">
+            <!-- Corner arc markers -->
+            <path d="M 20 70 A 88 88 0 0 1 70 20" stroke="rgba(57,255,20,0.15)" stroke-width="1.5" fill="none"/>
+            <path d="M 130 20 A 88 88 0 0 1 180 70" stroke="rgba(57,255,20,0.15)" stroke-width="1.5" fill="none"/>
+            <path d="M 180 130 A 88 88 0 0 1 130 180" stroke="rgba(57,255,20,0.15)" stroke-width="1.5" fill="none"/>
+            <path d="M 70 180 A 88 88 0 0 1 20 130" stroke="rgba(57,255,20,0.15)" stroke-width="1.5" fill="none"/>
+            <!-- Tick marks -->
+            <line x1="100" y1="6" x2="100" y2="14" stroke="rgba(57,255,20,0.2)" stroke-width="1"/>
+            <line x1="100" y1="186" x2="100" y2="194" stroke="rgba(57,255,20,0.2)" stroke-width="1"/>
+            <line x1="6" y1="100" x2="14" y2="100" stroke="rgba(57,255,20,0.2)" stroke-width="1"/>
+            <line x1="186" y1="100" x2="194" y2="100" stroke="rgba(57,255,20,0.2)" stroke-width="1"/>
+          </svg>
+
+          <button id="ptt-btn" disabled>
+            <svg class="ptt-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 2C15.24 2 13 4.24 13 7v11c0 2.76 2.24 5 5 5s5-2.24 5-5V7c0-2.76-2.24-5-5-5z"/>
+              <path d="M7 17c0 6.08 4.48 11.1 10.33 11.9V32h-3.33a1 1 0 000 2h8a1 1 0 000-2h-3.33v-3.1C24.52 28.1 29 23.08 29 17h-2c0 4.96-4.04 9-9 9s-9-4.04-9-9H7z"/>
+            </svg>
+            <span class="ptt-label">PUSH TO TALK</span>
+          </button>
+          <div class="ptt-ring"></div>
+          <div class="ptt-ring"></div>
+          <div class="ptt-ring"></div>
+        </div>
+
+        <div class="vu-meter" id="vu-meter">
+          <div class="vu-bar"></div><div class="vu-bar"></div>
+          <div class="vu-bar"></div><div class="vu-bar"></div>
+          <div class="vu-bar"></div><div class="vu-bar"></div>
+          <div class="vu-bar"></div><div class="vu-bar"></div>
+          <div class="vu-bar"></div><div class="vu-bar"></div>
+          <div class="vu-bar"></div><div class="vu-bar"></div>
+        </div>
+      </div>
+    </div><!-- /main-left -->
+
+    <div class="main-right">
+      <!-- TAP HINT -->
+      <div class="ptt-hint" id="ptt-hint">HOLD BUTTON TO TRANSMIT</div>
+
+      <!-- FREQUENCY DISPLAY -->
+      <div class="freq-block">
+        <div class="freq-value" id="freq-val">462.5625</div>
+        <div class="freq-unit">MHz &middot; ENCRYPTED &middot; P2P</div>
+      </div>
+
+      <!-- TELEMETRY STRIP -->
+      <div class="telem-strip">
+        <div class="tcel">
+          <span class="tcel-lbl">MODE</span>
+          <span class="tcel-val" id="tc-mode">STANDBY</span>
+        </div>
+        <div class="tcel">
+          <span class="tcel-lbl">CH</span>
+          <span class="tcel-val">TAC-01</span>
+        </div>
+        <div class="tcel">
+          <span class="tcel-lbl">AUDIO</span>
+          <span class="tcel-val" id="tc-audio">MUTED</span>
+        </div>
+        <div class="tcel">
+          <span class="tcel-lbl">LATENCY</span>
+          <span class="tcel-val" id="tc-lat">—</span>
+        </div>
+      </div>
+
+      <!-- WAVEFORM -->
+      <canvas class="wave-canvas" id="wave-canvas" width="600" height="60"></canvas>
+
+      <!-- QUICK ACTIONS -->
+      <div class="quick-actions">
+        <button class="qa-btn primary" onclick="openConnModal()">
+          <span class="qa-btn-icon">[CH]</span>
+          <span class="qa-btn-lbl">CHANNEL</span>
+        </button>
+        <button class="qa-btn" onclick="openPanel('intel')">
+          <span class="qa-btn-icon">[IN]</span>
+          <span class="qa-btn-lbl">INTEL</span>
+        </button>
+        <button class="qa-btn" onclick="openPanel('radar')">
+          <span class="qa-btn-icon">[RD]</span>
+          <span class="qa-btn-lbl">RADAR</span>
+        </button>
+        <button class="qa-btn" onclick="openPanel('systems')">
+          <span class="qa-btn-icon">[SYS]</span>
+          <span class="qa-btn-lbl">SYSTEMS</span>
+        </button>
+      </div>
+    </div><!-- /main-right -->
+
+  </div><!-- /main-view -->
+
+</div><!-- /app -->
+
+<!-- ════════════════════════════════════════════════════════════
+     CONNECTION MODAL (BOTTOM SHEET)
+════════════════════════════════════════════════════════════ -->
+<div id="conn-modal" onclick="closeConnOnOverlay(event)">
+  <div class="conn-sheet">
+    <div class="conn-sheet-hdr">
+      <div class="conn-sheet-title">CHANNEL HANDSHAKE</div>
+      <button class="sheet-close" onclick="closeConnModal()">X</button>
+    </div>
+
+    <div class="step-tabs">
+      <button class="step-tab active" id="stab-1" onclick="showStep(1)">
+        <span class="snum">01</span>ALPHA INIT
+      </button>
+      <button class="step-tab" id="stab-2" onclick="showStep(2)">
+        <span class="snum">02</span>BRAVO JOIN
+      </button>
+      <button class="step-tab" id="stab-3" onclick="showStep(3)">
+        <span class="snum">03</span>ALPHA CONFIRM
+      </button>
+    </div>
+
+    <div class="conn-body">
+
+      <!-- STEP 1 — Alpha generates offer -->
+      <div class="step-body active" id="step-1">
+        <div class="step-inst">
+          <strong>YOU ARE ALPHA.</strong> Tap GENERATE to create a secure channel code.
+          Copy it and transmit to Bravo via any secondary channel (SMS, email, etc).
+          Then go to Step 03 and wait for Bravo's response code.
+        </div>
+        <div class="code-display empty" id="offer-display" onclick="copyOffer()">
+          AWAITING GENERATION...
+          <span class="code-hint">TAP TO COPY</span>
+        </div>
+        <div class="tog-row" onclick="toggleSave('alpha')">
+          <div class="tog-switch on" id="tog-alpha"></div>
+          <span>REMEMBER SESSION</span>
+        </div>
+        <div class="btn-row">
+          <button class="mbtn go" onclick="generateOffer()">GEN CODE</button>
+          <button class="mbtn" onclick="copyOffer()">COPY</button>
+        </div>
+      </div>
+
+      <!-- STEP 2 — Bravo pastes offer, gets answer -->
+      <div class="step-body" id="step-2">
+        <div class="step-inst">
+          <strong>YOU ARE BRAVO.</strong> Paste Alpha's code below.
+          Tap GENERATE RESPONSE. A response code will appear —
+          <span class="amber">copy it and send back to Alpha before proceeding.</span>
+        </div>
+        <textarea class="code-input" id="offer-input" placeholder="PASTE ALPHA'S CODE HERE..."></textarea>
+        <div class="code-display empty" id="answer-display" onclick="copyAnswer()">
+          RESPONSE CODE WILL APPEAR HERE
+          <span class="code-hint">TAP TO COPY</span>
+        </div>
+        <!-- CRITICAL: stays visible until Bravo confirms they copied -->
+        <div id="bravo-confirm-bar">
+          <div class="bcb-text">CONFIRM: Have you copied the response code and sent it to Alpha?</div>
+          <div class="btn-row">
+            <button class="mbtn amber" onclick="bravoCopyConfirmed()">YES — CODE SENT TO ALPHA</button>
+          </div>
+        </div>
+        <div class="tog-row" onclick="toggleSave('bravo')">
+          <div class="tog-switch on" id="tog-bravo"></div>
+          <span>REMEMBER SESSION</span>
+        </div>
+        <div class="btn-row">
+          <button class="mbtn go" onclick="generateAnswer()">GEN RESPONSE</button>
+          <button class="mbtn" onclick="copyAnswer()">COPY RESPONSE</button>
+        </div>
+      </div>
+
+      <!-- STEP 3 — Alpha pastes answer -->
+      <div class="step-body" id="step-3">
+        <div class="step-inst" id="step3-inst">
+          <strong>YOU ARE ALPHA.</strong> Paste Bravo's response code below and tap CONNECT.
+          The secure channel will open immediately.
+        </div>
+        <textarea class="code-input" id="answer-input" placeholder="PASTE BRAVO'S RESPONSE CODE..."></textarea>
+        <div class="btn-row">
+          <button class="mbtn go" onclick="connectWithAnswer()">CONNECT NOW</button>
+        </div>
+      </div>
+
+    </div><!-- /conn-body -->
+  </div>
+</div><!-- /conn-modal -->
+
+<!-- ════════════════════════════════════════════════════════════
+     SIDE PANEL
+════════════════════════════════════════════════════════════ -->
+<div id="panel-overlay" onclick="togglePanel()"></div>
+<div id="side-panel">
+  <div class="panel-topbar">
+    <div class="panel-title">TACOPS SYSTEMS</div>
+    <button class="panel-close" onclick="togglePanel()">X</button>
+  </div>
+  <div class="panel-tabs">
+    <button class="ptab active" onclick="switchPanelTab('radar')">RADAR</button>
+    <button class="ptab" onclick="switchPanelTab('systems')">SYSTEMS</button>
+    <button class="ptab" onclick="switchPanelTab('intel')">INTEL</button>
+    <button class="ptab" onclick="switchPanelTab('log')">LOG</button>
+    <button class="ptab" onclick="switchPanelTab('settings')">CONFIG</button>
+  </div>
+  <div class="panel-pages">
+
+    <!-- ── RADAR PAGE ── -->
+    <div class="panel-page active" id="page-radar">
+
+      <div class="pcard">
+        <div class="pcard-hdr">
+          <div class="pcard-title">NETWORK SURVEILLANCE RADAR</div>
+          <div class="pcard-subtitle" id="radar-mode-lbl">SWEEP MODE</div>
+        </div>
+        <div class="pcard-body">
+          <div class="radar-layout">
+            <canvas id="radar-canvas" width="130" height="130"></canvas>
+            <div class="radar-data">
+              <div class="rd-row"><span class="rd-lbl">LOCAL IP</span><span class="rd-val g" id="rd-local">SCANNING...</span></div>
+              <div class="rd-row"><span class="rd-lbl">PUBLIC IP</span><span class="rd-val" id="rd-public">SCANNING...</span></div>
+              <div class="rd-row"><span class="rd-lbl">PEER IP</span><span class="rd-val" id="rd-peer">OFFLINE</span></div>
+              <div class="rd-row"><span class="rd-lbl">NAT TYPE</span><span class="rd-val" id="rd-nat">UNKNOWN</span></div>
+              <div class="rd-row"><span class="rd-lbl">CONTACTS</span><span class="rd-val g" id="rd-contacts">0</span></div>
+              <div class="rd-row"><span class="rd-lbl">RELAY</span><span class="rd-val" id="rd-relay">NONE</span></div>
+            </div>
+          </div>
+          <div class="mt-md">
+            <div class="contact-list" id="contact-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Network topology canvas -->
+      <div class="pcard">
+        <div class="pcard-hdr">
+          <div class="pcard-title">NETWORK TOPOLOGY</div>
+        </div>
+        <div class="pcard-body">
+          <canvas id="topo-canvas" width="400" height="120"></canvas>
+          <div class="topo-legend">
+            <div class="topo-item"><div class="topo-dot" style="background:var(--g-bright)"></div>LOCAL</div>
+            <div class="topo-item"><div class="topo-dot" style="background:var(--a-mid)"></div>STUN</div>
+            <div class="topo-item"><div class="topo-dot" style="background:var(--c-bright)"></div>PEER</div>
+            <div class="topo-item"><div class="topo-dot" style="background:var(--r-bright)"></div>RELAY</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Radar mode controls -->
+      <div class="pcard">
+        <div class="pcard-hdr"><div class="pcard-title">RADAR CONTROLS</div></div>
+        <div class="pcard-body">
+          <div class="btn-row">
+            <button class="mbtn go" id="radar-sweep-btn" onclick="setRadarMode('sweep')">SWEEP</button>
+            <button class="mbtn" id="radar-sector-btn" onclick="setRadarMode('sector')">SECTOR</button>
+            <button class="mbtn" id="radar-track-btn" onclick="setRadarMode('track')">TRACK</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-radar -->
+
+    <!-- ── SYSTEMS PAGE ── -->
+    <div class="panel-page" id="page-systems">
+
+      <div class="pcard">
+        <div class="pcard-hdr"><div class="pcard-title">SYSTEM HEALTH</div></div>
+        <div class="pcard-body">
+          <div class="health-grid">
+            <div class="hbar-row">
+              <span class="hbar-lbl">SIGNAL</span>
+              <div class="hbar-track"><div class="hbar-fill" id="hb-signal" style="width:0%"></div></div>
+              <span class="hbar-val" id="hbv-signal">—</span>
+            </div>
+            <div class="hbar-row">
+              <span class="hbar-lbl">ENCRYPT</span>
+              <div class="hbar-track"><div class="hbar-fill" id="hb-encrypt" style="width:100%;background:var(--g-bright)"></div></div>
+              <span class="hbar-val">AES</span>
+            </div>
+            <div class="hbar-row">
+              <span class="hbar-lbl">BATTERY</span>
+              <div class="hbar-track"><div class="hbar-fill" id="hb-battery" style="width:0%"></div></div>
+              <span class="hbar-val" id="hbv-battery">—</span>
+            </div>
+            <div class="hbar-row">
+              <span class="hbar-lbl">LATENCY</span>
+              <div class="hbar-track"><div class="hbar-fill" id="hb-latency" style="width:0%"></div></div>
+              <span class="hbar-val" id="hbv-latency">—</span>
+            </div>
+            <div class="hbar-row">
+              <span class="hbar-lbl">PKT LOSS</span>
+              <div class="hbar-track"><div class="hbar-fill" id="hb-loss" style="width:0%"></div></div>
+              <span class="hbar-val" id="hbv-loss">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WebRTC Live Stats -->
+      <div class="pcard">
+        <div class="pcard-hdr"><div class="pcard-title">WEBRTC LIVE STATS</div></div>
+        <div class="pcard-body">
+          <div class="stats-table">
+            <div class="stat-row"><span class="stat-key">RTP PACKETS TX</span><span class="stat-val" id="stat-pktx">—</span></div>
+            <div class="stat-row"><span class="stat-key">RTP PACKETS RX</span><span class="stat-val" id="stat-pkrx">—</span></div>
+            <div class="stat-row"><span class="stat-key">BYTES TX</span><span class="stat-val" id="stat-btx">—</span></div>
+            <div class="stat-row"><span class="stat-key">BYTES RX</span><span class="stat-val" id="stat-brx">—</span></div>
+            <div class="stat-row"><span class="stat-key">JITTER (ms)</span><span class="stat-val" id="stat-jitter">—</span></div>
+            <div class="stat-row"><span class="stat-key">RTT (ms)</span><span class="stat-val" id="stat-rtt">—</span></div>
+            <div class="stat-row"><span class="stat-key">AUDIO CODEC</span><span class="stat-val" id="stat-codec">—</span></div>
+            <div class="stat-row"><span class="stat-key">SAMPLE RATE</span><span class="stat-val" id="stat-sample">—</span></div>
+            <div class="stat-row"><span class="stat-key">ICE STATE</span><span class="stat-val" id="stat-ice">—</span></div>
+            <div class="stat-row"><span class="stat-key">CONN STATE</span><span class="stat-val" id="stat-conn">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spectrum analyzer -->
+      <div class="pcard">
+        <div class="pcard-hdr"><div class="pcard-title">AUDIO SPECTRUM</div></div>
+        <div class="pcard-body">
+          <canvas id="spec-canvas" width="400" height="60"></canvas>
+        </div>
+      </div>
+
+      <!-- Device info -->
+      <div class="pcard">
+        <div class="pcard-hdr"><div class="pcard-title">DEVICE TELEMETRY</div></div>
+        <div class="pcard-body">
+          <div class="stats-table">
+            <div class="stat-row"><span class="stat-key">NETWORK TYPE</span><span class="stat-val" id="dev-net">—</span></div>
+            <div class="stat-row"><span class="stat-key">DOWNLINK (Mbps)</span><span class="stat-val" id="dev-dl">—</span></div>
+            <div class="stat-row"><span class="stat-key">RTT ESTIMATE</span><span class="stat-val" id="dev-rtt">—</span></div>
+            <div class="stat-row"><span class="stat-key">SCREEN</span><span class="stat-val" id="dev-screen">—</span></div>
+            <div class="stat-row"><span class="stat-key">ORIENTATION</span><span class="stat-val" id="dev-orient">—</span></div>
+            <div class="stat-row"><span class="stat-key">GEOLOC</span><span class="stat-val" id="dev-geo">PENDING</span></div>
+            <div class="stat-row"><span class="stat-key">HEADING</span><span class="stat-val" id="dev-heading">—</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-systems -->
+
+    <!-- ── INTEL PAGE ── -->
+    <div class="panel-page" id="page-intel">
+
+      <!-- Cipher key -->
+      <div class="pcard">
+        <div class="pcard-hdr"><div class="pcard-title">CIPHER CONFIGURATION</div></div>
+        <div class="pcard-body">
+          <div class="cipher-key-wrap">
+            <div class="ck-label">SHARED SECRET KEY</div>
+            <div class="ck-row">
+              <input class="ck-input" type="password" id="cipher-key"
+                placeholder="ENTER SHARED SECRET KEY..." oninput="onKeyChange()">
+              <div class="key-strength-row" id="key-strength">
+                <div class="ks-block" id="ks1"></div><div class="ks-block" id="ks2"></div>
+                <div class="ks-block" id="ks3"></div><div class="ks-block" id="ks4"></div>
+                <div class="ks-block" id="ks5"></div>
+              </div>
+            </div>
+            <div class="text-dim" id="key-strength-label">KEY STRENGTH: NOT SET</div>
+          </div>
+          <div class="sep mt-md"></div>
+          <div class="ck-label mt-md">CIPHER ALGORITHM</div>
+          <div class="intel-algo-row mt-sm">
+            <button class="algo-btn active" id="algo-xor" onclick="setAlgo('xor')">XOR-B64</button>
+            <button class="algo-btn" id="algo-vigenere" onclick="setAlgo('vigenere')">VIGENERE</button>
+            <button class="algo-btn" id="algo-caesar" onclick="setAlgo('caesar')">CAESAR+</button>
+            <button class="algo-btn" id="algo-multi" onclick="setAlgo('multi')">MULTI-LAYER</button>
+          </div>
+          <div class="text-dim mt-sm" id="algo-desc">XOR cipher with Base64 encoding. Fast, symmetric.</div>
+        </div>
+      </div>
+
+      <!-- Encode -->
+      <div class="pcard">
+        <div class="pcard-hdr"><div class="pcard-title">ENCODE — PLAINTEXT TO CIPHER</div></div>
+        <div class="pcard-body">
+          <div class="ck-label">INPUT PLAINTEXT</div>
+          <textarea class="intel-ta mt-sm" id="plain-input"
+            placeholder="TYPE SECRET MESSAGE HERE..." oninput="autoEncode()"></textarea>
+          <div class="ck-label mt-md">ENCODED CIPHERTEXT <span class="text-dim">(SHARE THIS)</span></div>
+          <div class="intel-out mt-sm" id="encoded-output" onclick="copyEncoded()">
+            ENCODED OUTPUT WILL APPEAR HERE...
+            <span class="code-hint">TAP TO COPY</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decode -->
+      <div class="pcard">
+        <div class="pcard-hdr"><div class="pcard-title">DECODE — CIPHER TO PLAINTEXT</div></div>
+        <div class="pcard-body">
+          <div class="ck-label">PASTE RECEIVED CIPHERTEXT</div>
+          <textarea class="intel-ta mt-sm" id="cipher-input"
+            placeholder="PASTE RECEIVED CIPHERTEXT HERE..." oninput="autoDecode()"></textarea>
+          <div class="ck-label mt-md">DECODED MESSAGE</div>
+          <div class="intel-out decoded mt-sm" id="decoded-output">
+            DECODED OUTPUT WILL APPEAR HERE...
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-intel -->
+
+    <!-- ── LOG PAGE ── -->
+    <div class="panel-page" id="page-log">
+      <div class="pcard">
+        <div class="pcard-hdr"><div class="pcard-title">COMMS LOG</div></div>
+        <div class="pcard-body">
+          <div class="log-toolbar">
+            <button class="log-filter-btn active" onclick="setLogFilter('all', this)">ALL</button>
+            <button class="log-filter-btn" onclick="setLogFilter('info', this)">INFO</button>
+            <button class="log-filter-btn" onclick="setLogFilter('warn', this)">WARN</button>
+            <button class="log-filter-btn" onclick="setLogFilter('tx', this)">TX</button>
+            <button class="log-clear-btn" onclick="clearLog()">CLEAR</button>
+          </div>
+          <div class="log-scroll" id="comms-log"></div>
+        </div>
+      </div>
+    </div><!-- /page-log -->
+
+    <!-- ── SETTINGS PAGE ── -->
+    <div class="panel-page" id="page-settings">
+      <div class="pcard">
+        <div class="pcard-hdr"><div class="pcard-title">AUDIO SETTINGS</div></div>
+        <div class="pcard-body">
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">RADIO EFFECT</div>
+              <div class="setting-desc">Apply narrow-band radio filter to incoming audio</div>
+            </div>
+            <div class="setting-ctrl">
+              <div class="tog-row" onclick="toggleSetting('radioFx')">
+                <div class="tog-switch on" id="set-radioFx"></div>
+              </div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">TX BEEP TONES</div>
+              <div class="setting-desc">Play start/stop tones on transmit</div>
+            </div>
+            <div class="setting-ctrl">
+              <div class="tog-row" onclick="toggleSetting('txBeeps')">
+                <div class="tog-switch on" id="set-txBeeps"></div>
+              </div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">ECHO CANCEL</div>
+              <div class="setting-desc">Browser echo cancellation on mic input</div>
+            </div>
+            <div class="setting-ctrl">
+              <div class="tog-row" onclick="toggleSetting('echoCan')">
+                <div class="tog-switch on" id="set-echoCan"></div>
+              </div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">NOISE SUPPRESS</div>
+              <div class="setting-desc">Background noise suppression</div>
+            </div>
+            <div class="setting-ctrl">
+              <div class="tog-row" onclick="toggleSetting('noiseSupp')">
+                <div class="tog-switch on" id="set-noiseSupp"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-hdr"><div class="pcard-title">DISPLAY SETTINGS</div></div>
+        <div class="pcard-body">
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">RADAR CONTACTS</div>
+              <div class="setting-desc">Show detected network nodes on radar</div>
+            </div>
+            <div class="setting-ctrl">
+              <div class="tog-row" onclick="toggleSetting('radarContacts')">
+                <div class="tog-switch on" id="set-radarContacts"></div>
+              </div>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">WAVEFORM DISPLAY</div>
+              <div class="setting-desc">Realtime audio waveform on main screen</div>
+            </div>
+            <div class="setting-ctrl">
+              <div class="tog-row" onclick="toggleSetting('waveform')">
+                <div class="tog-switch on" id="set-waveform"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-hdr"><div class="pcard-title">CHANNEL SETTINGS</div></div>
+        <div class="pcard-body">
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">FREQUENCY BAND</div>
+              <div class="setting-desc">Display frequency band</div>
+            </div>
+            <div class="setting-ctrl">
+              <select class="select-ctrl" id="freq-band-sel" onchange="onFreqBandChange()">
+                <option value="frs">FRS (462 MHz)</option>
+                <option value="gmrs">GMRS (467 MHz)</option>
+                <option value="mil">MIL (150 MHz)</option>
+                <option value="uhf">UHF (400 MHz)</option>
+              </select>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-name">REMEMBER SESSION</div>
+              <div class="setting-desc">Auto-save connection codes for reconnect</div>
+            </div>
+            <div class="setting-ctrl">
+              <div class="tog-row" onclick="toggleSetting('saveSession')">
+                <div class="tog-switch on" id="set-saveSession"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-hdr"><div class="pcard-title">SYSTEM INFO</div></div>
+        <div class="pcard-body">
+          <div class="stats-table">
+            <div class="stat-row"><span class="stat-key">VERSION</span><span class="stat-val">TACLINK-7 v7.0.3</span></div>
+            <div class="stat-row"><span class="stat-key">BUILD</span><span class="stat-val">CLASSIFIED</span></div>
+            <div class="stat-row"><span class="stat-key">PROTOCOL</span><span class="stat-val">WebRTC 1.0</span></div>
+            <div class="stat-row"><span class="stat-key">ENCRYPTION</span><span class="stat-val">DTLS-SRTP</span></div>
+            <div class="stat-row"><span class="stat-key">STUN NODES</span><span class="stat-val">4 SERVERS</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-settings -->
+
+  </div><!-- /panel-pages -->
+</div><!-- /side-panel -->
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- REMOTE AUDIO — keep out of DOM flow, never removed -->
+<audio id="remote-audio" autoplay playsinline style="display:none"></audio>
+
+<!-- ════════════════════════════════════════════════════════════
+     JAVASCRIPT — Full application logic
+════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════════════════════
+//  APP STATE
+// ══════════════════════════════════════════════════════════════
+const APP = {
+  connected:       false,
+  transmitting:    false,
+  connectedAt:     null,
+  radarMode:       'sweep',      // 'sweep' | 'sector' | 'track'
+  logFilter:       'all',
+  cipherAlgo:      'xor',
+  saveAlpha:       true,
+  saveBravo:       true,
+
+  // Settings
+  settings: {
+    radioFx:        true,
+    txBeeps:        true,
+    echoCan:        true,
+    noiseSupp:      true,
+    radarContacts:  true,
+    waveform:       true,
+    saveSession:    true,
+  },
+
+  // Frequency bands
+  freqBands: {
+    frs:  ['462.5625','462.5875','462.6125','462.6375','462.6625','462.6875','462.7125'],
+    gmrs: ['467.5625','467.5875','467.6125','467.6375','467.6625'],
+    mil:  ['150.775','151.505','152.105','153.350','154.455'],
+    uhf:  ['400.650','401.125','402.340','403.775','405.100'],
+  },
+  freqBand:       'frs',
+  freqIndex:      0,
+
+  // Network contacts discovered via ICE
+  contacts: [],
+
+  // Peer IP once connected
+  peerIP:  null,
+  localIP: null,
+  publicIP: null,
+};
+
+const SK = 'taclink_v5';
+
+// ══════════════════════════════════════════════════════════════
+//  WEBRTC VARIABLES
+// ══════════════════════════════════════════════════════════════
+let pc             = null;
+let localStream    = null;
+let audioTrack     = null;
+let offerCode      = null;
+let silentOsc      = null;
+let wakeLockHandle = null;
+
+// Audio processing nodes
+let audioCtx       = null;
+let analyserMic    = null;
+let analyserSpec   = null;
+let waveAnalyser   = null;
+let vuInterval     = null;
+let waveAnimId     = null;
+
+// Previous stats for delta calculations
+let prevStats = {
+  packetsSent:     0,
+  packetsReceived: 0,
+  bytesSent:       0,
+  bytesReceived:   0,
+};
+
+const STUN_SERVERS = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'stun:stun.cloudflare.com:3478' },
+  { urls: 'stun:stun.services.mozilla.com' },
+];
+
+// ══════════════════════════════════════════════════════════════
+//  BOOT SEQUENCE
+// ══════════════════════════════════════════════════════════════
+const BOOT_LINES = [
+  { text: 'INITIALIZING TACLINK-7 KERNEL...', cls: '',   delay: 200  },
+  { text: 'LOADING CRYPTO ENGINE AES-256...', cls: 'ok', delay: 500  },
+  { text: 'DTLS-SRTP MODULE ACTIVE',          cls: 'ok', delay: 800  },
+  { text: 'LOADING STUN NODE TABLE (4)...',   cls: 'ok', delay: 1100 },
+  { text: 'RADAR SUBSYSTEM INIT...',           cls: 'ok', delay: 1400 },
+  { text: 'NETWORK INTERFACE SCAN...',         cls: '',   delay: 1700 },
+  { text: 'CHECKING GEOLOCATION...',           cls: '',   delay: 1900 },
+  { text: 'SYSTEM READY // AWAIT OPERATOR',   cls: 'ok', delay: 2200 },
+];
+
+function runBootSequence() {
+  const logEl  = document.getElementById('boot-log');
+  const barEl  = document.getElementById('boot-bar');
+  const screen = document.getElementById('boot-screen');
+
+  BOOT_LINES.forEach((line, i) => {
+    setTimeout(() => {
+      const div = document.createElement('div');
+      div.className = 'boot-log-line ' + line.cls;
+      div.textContent = line.text;
+      logEl.appendChild(div);
+      logEl.scrollTop = logEl.scrollHeight;
+      barEl.style.width = ((i + 1) / BOOT_LINES.length * 100) + '%';
+    }, line.delay);
+  });
+
+  setTimeout(() => {
+    screen.classList.add('fade-out');
+    setTimeout(() => { screen.style.display = 'none'; }, 650);
+    onAppReady();
+  }, 2800);
+}
+
+function onAppReady() {
+  startUTCClock();
+  initNetworkInfo();
+  initBatteryAPI();
+  initGeolocation();
+  initDeviceOrientation();
+  initRadar();
+  initSpectrumCanvas();
+  initWaveCanvas();
+  startTopoCanvas();
+  checkSavedSession();
+  addLog('SYSTEM READY', 'info', 'BOOT');
+  addLog('AWAITING OPERATOR', 'info', 'AUTH');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  UTC CLOCK
+// ══════════════════════════════════════════════════════════════
+function startUTCClock() {
+  function tick() {
+    const now = new Date();
+    const h = String(now.getUTCHours()).padStart(2,'0');
+    const m = String(now.getUTCMinutes()).padStart(2,'0');
+    const s = String(now.getUTCSeconds()).padStart(2,'0');
+    document.getElementById('utc-clock').textContent = `${h}:${m}:${s}Z`;
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+function nowStr() {
+  const now = new Date();
+  const h = String(now.getUTCHours()).padStart(2,'0');
+  const m = String(now.getUTCMinutes()).padStart(2,'0');
+  const s = String(now.getUTCSeconds()).padStart(2,'0');
+  return `${h}:${m}:${s}Z`;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  NETWORK INFORMATION API (real data)
+// ══════════════════════════════════════════════════════════════
+function initNetworkInfo() {
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (!conn) {
+    document.getElementById('net-type').textContent = 'UNKNOWN';
+    document.getElementById('dev-net').textContent = 'API N/A';
+    return;
+  }
+
+  function update() {
+    const type = (conn.effectiveType || conn.type || '—').toUpperCase();
+    const dl   = conn.downlink ? conn.downlink.toFixed(1) + ' Mbps' : '—';
+    const rtt  = conn.rtt     ? conn.rtt + ' ms'   : '—';
+
+    document.getElementById('net-type').textContent = type;
+    document.getElementById('dev-net').textContent  = type;
+    document.getElementById('dev-dl').textContent   = dl;
+    document.getElementById('dev-rtt').textContent  = rtt;
+
+    // Signal quality from effective type
+    const sigBars = document.getElementById('sig-bars');
+    sigBars.className = 'sig-bars';
+    if (type === '4G' || type === 'WIFI' || dl > 5)  sigBars.classList.add('live');
+    else if (type === '3G' || type === '2G')          sigBars.classList.add('weak');
+
+    // Update signal health bar
+    let sigPct = 80;
+    if (type === '4G' || type === 'WIFI') sigPct = 90;
+    else if (type === '3G') sigPct = 55;
+    else if (type === '2G') sigPct = 25;
+    updateHealthBar('signal', sigPct, sigPct > 60 ? 'var(--g-bright)' : sigPct > 30 ? 'var(--a-bright)' : 'var(--r-bright)', sigPct + '%');
+  }
+
+  update();
+  conn.addEventListener('change', update);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  BATTERY API (real data)
+// ══════════════════════════════════════════════════════════════
+function initBatteryAPI() {
+  if (!('getBattery' in navigator)) {
+    updateHealthBar('battery', 0, 'var(--t-4)', 'N/A');
+    return;
+  }
+  navigator.getBattery().then(bat => {
+    function updateBat() {
+      const lvl = Math.round(bat.level * 100);
+      const clr = lvl > 50 ? 'var(--g-bright)' : lvl > 20 ? 'var(--a-bright)' : 'var(--r-bright)';
+      const lbl = lvl + '%' + (bat.charging ? ' CHG' : '');
+      updateHealthBar('battery', lvl, clr, lbl);
+      addLog('Battery: ' + lbl, 'info', 'SYS');
+    }
+    updateBat();
+    bat.addEventListener('levelchange', updateBat);
+    bat.addEventListener('chargingchange', updateBat);
+  }).catch(() => {
+    updateHealthBar('battery', 0, 'var(--t-4)', 'N/A');
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+//  GEOLOCATION (real data)
+// ══════════════════════════════════════════════════════════════
+function initGeolocation() {
+  if (!('geolocation' in navigator)) {
+    document.getElementById('dev-geo').textContent = 'DENIED';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude.toFixed(4);
+    const lon = pos.coords.longitude.toFixed(4);
+    document.getElementById('dev-geo').textContent = `${lat}, ${lon}`;
+    addLog(`GEO LOCK: ${lat}, ${lon}`, 'info', 'GPS');
+  }, () => {
+    document.getElementById('dev-geo').textContent = 'ACCESS DENIED';
+  }, { timeout: 8000 });
+}
+
+// ══════════════════════════════════════════════════════════════
+//  DEVICE ORIENTATION / COMPASS (real data)
+// ══════════════════════════════════════════════════════════════
+function initDeviceOrientation() {
+  document.getElementById('dev-screen').textContent =
+    `${screen.width}x${screen.height}`;
+  document.getElementById('dev-orient').textContent =
+    (screen.orientation?.type || 'UNKNOWN').toUpperCase();
+
+  if ('DeviceOrientationEvent' in window) {
+    window.addEventListener('deviceorientationabsolute', e => {
+      if (e.alpha !== null) {
+        const heading = Math.round(e.alpha);
+        document.getElementById('dev-heading').textContent = heading + '° ' + bearing(heading);
+      }
+    }, true);
+    window.addEventListener('deviceorientation', e => {
+      if (e.alpha !== null) {
+        const heading = Math.round(e.alpha);
+        document.getElementById('dev-heading').textContent = heading + '° ' + bearing(heading);
+      }
+    }, true);
+  }
+}
+
+function bearing(deg) {
+  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  return dirs[Math.round(deg / 22.5) % 16];
+}
+
+// ══════════════════════════════════════════════════════════════
+//  HEALTH BAR UTILITY
+// ══════════════════════════════════════════════════════════════
+function updateHealthBar(id, pct, color, label) {
+  const fill = document.getElementById('hb-' + id);
+  const val  = document.getElementById('hbv-' + id);
+  if (fill) { fill.style.width = Math.max(0, Math.min(100, pct)) + '%'; fill.style.background = color; }
+  if (val)  val.textContent = label;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  AUDIO CONTEXT
+// ══════════════════════════════════════════════════════════════
+function getACtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  BEEP TONES
+// ══════════════════════════════════════════════════════════════
+function beep(freq, duration, type = 'sine', vol = 0.15) {
+  if (!APP.settings.txBeeps) return;
+  try {
+    const ctx = getACtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.012);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
+    osc.start();
+    osc.stop(ctx.currentTime + duration + 0.03);
+  } catch(e) {}
+}
+
+function beepTxStart() {
+  beep(880, 0.06, 'square', 0.12);
+  setTimeout(() => beep(1320, 0.05, 'square', 0.09), 55);
+}
+function beepTxEnd() {
+  beep(700, 0.05, 'square', 0.09);
+  setTimeout(() => beep(440, 0.1, 'square', 0.1), 45);
+}
+function beepConnected() {
+  [440, 554, 660, 880].forEach((f, i) =>
+    setTimeout(() => beep(f, 0.09, 'sine', 0.14), i * 90)
+  );
+}
+
+// ── Play Connected.mp3 ──
+function playConnectedAudio() {
+  try {
+    const audio = new Audio('Connected.mp3');
+    audio.volume = 0.85;
+    audio.play().catch(() => {
+      // File not found — fall back to tones only
+      beepConnected();
+    });
+  } catch(e) {
+    beepConnected();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  RADIO AUDIO EFFECT CHAIN (applied to incoming stream)
+// ══════════════════════════════════════════════════════════════
+function buildRadioEffect(mediaStream) {
+  try {
+    const ctx  = getACtx();
+    const src  = ctx.createMediaStreamSource(mediaStream);
+
+    // High-pass: remove low rumble below 400Hz
+    const hp   = ctx.createBiquadFilter();
+    hp.type    = 'highpass';
+    hp.frequency.value = 400;
+    hp.Q.value = 0.7;
+
+    // Band-pass: telephony band 400–3400 Hz
+    const bp   = ctx.createBiquadFilter();
+    bp.type    = 'bandpass';
+    bp.frequency.value = 1800;
+    bp.Q.value = 0.5;
+
+    // Low-pass: cut above 3400 Hz
+    const lp   = ctx.createBiquadFilter();
+    lp.type    = 'lowpass';
+    lp.frequency.value = 3400;
+    lp.Q.value = 0.7;
+
+    // Saturation / distortion (radio crunch)
+    const dist = ctx.createWaveShaper();
+    const curve = new Float32Array(512);
+    for (let i = 0; i < 512; i++) {
+      const x = (i * 2 / 511) - 1;
+      curve[i] = (Math.PI + 180) * x / (Math.PI + 180 * Math.abs(x));
+    }
+    dist.curve = curve;
+    dist.oversample = '4x';
+
+    // Slight compression to even out levels
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -24;
+    comp.knee.value       = 6;
+    comp.ratio.value      = 8;
+    comp.attack.value     = 0.003;
+    comp.release.value    = 0.15;
+
+    // Output gain
+    const out  = ctx.createGain();
+    out.gain.value = APP.settings.radioFx ? 1.3 : 1.0;
+
+    // Connect chain
+    src.connect(hp);
+    hp.connect(bp);
+    bp.connect(lp);
+    lp.connect(dist);
+    dist.connect(comp);
+    comp.connect(out);
+    out.connect(ctx.destination);
+
+    return { src, hp, bp, lp, dist, comp, out };
+  } catch(e) {
+    // Fallback: no effect
+    return null;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  KEEP-ALIVE (background audio)
+// ══════════════════════════════════════════════════════════════
+function startKeepAlive() {
+  try {
+    const ctx = getACtx();
+    if (silentOsc) { try { silentOsc.stop(); } catch(e) {} }
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    g.gain.value = 0;
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    silentOsc = o;
+  } catch(e) {}
+
+  // Wake Lock API
+  if ('wakeLock' in navigator) {
+    navigator.wakeLock.request('screen')
+      .then(wl => { wakeLockHandle = wl; })
+      .catch(() => {});
+  }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    const ra = document.getElementById('remote-audio');
+    if (ra.srcObject && ra.paused) ra.play().catch(() => {});
+    if (APP.connected && !wakeLockHandle) {
+      navigator.wakeLock?.request('screen').then(wl => { wakeLockHandle = wl; }).catch(() => {});
+    }
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+//  STORAGE
+// ══════════════════════════════════════════════════════════════
+function sessionSave(role, code) {
+  try {
+    localStorage.setItem(SK, JSON.stringify({ role, code, ts: Date.now() }));
+  } catch(e) {}
+}
+function sessionLoad() {
+  try { return JSON.parse(localStorage.getItem(SK)); } catch(e) { return null; }
+}
+function checkSavedSession() {
+  const s = sessionLoad();
+  if (!s) return;
+  document.getElementById('saved-banner').classList.add('show');
+  const age = ageStr(s.ts);
+  document.getElementById('sb-sub').textContent =
+    (s.role === 'alpha' ? 'ALPHA MODE' : 'BRAVO MODE') + ' · ' + age;
+}
+function clearSaved() {
+  localStorage.removeItem(SK);
+  document.getElementById('saved-banner').classList.remove('show');
+  toast('SESSION DATA PURGED');
+  addLog('Session data purged', 'warn', 'SYS');
+}
+function reconnectSaved() {
+  const s = sessionLoad();
+  if (!s) { toast('NO SAVED SESSION FOUND', 'amber'); return; }
+  document.getElementById('saved-banner').classList.remove('show');
+  openConnModal();
+  if (s.role === 'alpha') {
+    showStep(1);
+    toast('GENERATING FRESH CHANNEL CODE...');
+    setTimeout(() => generateOffer(), 400);
+  } else {
+    showStep(2);
+    document.getElementById('offer-input').value = s.code;
+    toast('OFFER CODE RESTORED — TAP GENERATE RESPONSE');
+  }
+}
+function ageStr(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return 'JUST NOW';
+  if (s < 3600) return Math.floor(s / 60) + ' MIN AGO';
+  if (s < 86400) return Math.floor(s / 3600) + ' HR AGO';
+  return Math.floor(s / 86400) + ' DAYS AGO';
+}
+
+// ══════════════════════════════════════════════════════════════
+//  WEBRTC — FIXED 3-STEP HANDSHAKE
+// ══════════════════════════════════════════════════════════════
+function createPC() {
+  const p = new RTCPeerConnection({
+    iceServers: STUN_SERVERS,
+    iceCandidatePoolSize: 10,
+  });
+
+  // ── Parse ICE candidates for radar contacts ──
+  p.onicecandidate = evt => {
+    if (!evt.candidate) return;
+    parseICECandidate(evt.candidate);
+  };
+
+  p.oniceconnectionstatechange = () => {
+    const s = p.iceConnectionState;
+    document.getElementById('stat-ice').textContent = s.toUpperCase();
+    addLog('ICE: ' + s, s === 'failed' ? 'warn' : 'info', 'ICE');
+    setStatus('ICE: ' + s.toUpperCase(), false);
+    if (s === 'connected' || s === 'completed') onConnected();
+    if (s === 'disconnected' || s === 'failed' || s === 'closed') onDisconnected();
+  };
+
+  p.onconnectionstatechange = () => {
+    const s = p.connectionState;
+    document.getElementById('stat-conn').textContent = s.toUpperCase();
+    if (s === 'connected') onConnected();
+  };
+
+  p.ontrack = evt => {
+    const ra = document.getElementById('remote-audio');
+    ra.srcObject = evt.streams[0];
+    ra.muted = APP.settings.radioFx; // mute raw if radio FX active
+    ra.play().catch(() => {});
+
+    // Apply radio effect chain to incoming stream
+    if (APP.settings.radioFx) {
+      buildRadioEffect(evt.streams[0]);
+    }
+  };
+
+  return p;
+}
+
+// ── Parse an ICE candidate and add to radar contacts ──
+function parseICECandidate(candidate) {
+  const sdp = candidate.candidate;
+  if (!sdp) return;
+
+  // Extract IP from SDP candidate string
+  // Format: "candidate:... <component> <protocol> <priority> <ip> <port> typ <type> ..."
+  const parts = sdp.split(' ');
+  if (parts.length < 8) return;
+
+  const ip   = parts[4];
+  const port = parts[5];
+  const type = parts[7]; // host | srflx | relay
+
+  // Skip link-local and loopback
+  if (ip.startsWith('169.254') || ip === '127.0.0.1' || ip.startsWith('::1')) return;
+
+  const existing = APP.contacts.find(c => c.ip === ip);
+  if (existing) return; // deduplicate
+
+  let contactType = 'stun';
+  let label = '';
+
+  if (type === 'host') {
+    contactType = 'local';
+    label = 'LOCAL';
+    APP.localIP = ip;
+    document.getElementById('rd-local').textContent = ip;
+  } else if (type === 'srflx') {
+    contactType = 'stun';
+    label = 'STUN-REF';
+    APP.publicIP = ip;
+    document.getElementById('rd-public').textContent = ip;
+    // Detect NAT: if public IP differs from local IP
+    if (APP.localIP && APP.localIP !== ip) {
+      document.getElementById('rd-nat').textContent = 'SYMMETRIC';
+    } else {
+      document.getElementById('rd-nat').textContent = 'OPEN';
+    }
+  } else if (type === 'relay') {
+    contactType = 'relay';
+    label = 'RELAY';
+    document.getElementById('rd-relay').textContent = ip;
+  }
+
+  // Assign radar position (random angle, random radius)
+  const angle  = Math.random() * Math.PI * 2;
+  const radius = 0.3 + Math.random() * 0.6;
+
+  APP.contacts.push({ ip, port, type: contactType, label, angle, radius, age: 0 });
+  document.getElementById('rd-contacts').textContent = APP.contacts.length;
+  renderContactList();
+  addLog(`CONTACT: ${label} ${ip}:${port}`, 'info', 'ICE');
+}
+
+// ── When peer connects, extract their IP from stats ──
+async function extractPeerIP() {
+  if (!pc) return;
+  try {
+    const stats = await pc.getStats();
+    stats.forEach(r => {
+      if (r.type === 'remote-candidate') {
+        const ip   = r.ip || r.address;
+        const port = r.port;
+        if (ip && !APP.contacts.find(c => c.ip === ip)) {
+          APP.peerIP = ip;
+          document.getElementById('rd-peer').textContent = ip;
+          const angle  = Math.PI * 1.25 + (Math.random() - 0.5) * 0.5;
+          const radius = 0.55 + Math.random() * 0.3;
+          APP.contacts.push({ ip, port, type: 'peer', label: 'PEER', angle, radius, age: 0 });
+          document.getElementById('rd-contacts').textContent = APP.contacts.length;
+          renderContactList();
+          addLog('PEER NODE: ' + ip + ':' + port, 'info', 'RTC');
+        }
+      }
+    });
+  } catch(e) {}
+}
+
+function renderContactList() {
+  const list = document.getElementById('contact-list');
+  list.innerHTML = '';
+  APP.contacts.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'contact-entry';
+    el.innerHTML = `
+      <div class="contact-dot ${c.type}"></div>
+      <span class="contact-label">${c.label}</span>
+      <span class="contact-ip">${c.ip}:${c.port || '?'}</span>
+    `;
+    list.appendChild(el);
+  });
+}
+
+function waitForICE(p) {
+  return new Promise(resolve => {
+    if (p.iceGatheringState === 'complete') { resolve(); return; }
+    const check = () => {
+      if (p.iceGatheringState === 'complete') {
+        p.removeEventListener('icegatheringstatechange', check);
+        resolve();
+      }
+    };
+    p.addEventListener('icegatheringstatechange', check);
+    // Hard timeout at 10s
+    setTimeout(resolve, 10000);
+  });
+}
+
+async function getMic() {
+  if (localStream) return localStream;
+  localStream = await navigator.mediaDevices.getUserMedia({
+    audio: {
+      echoCancellation:   APP.settings.echoCan,
+      noiseSuppression:   APP.settings.noiseSupp,
+      autoGainControl:    true,
+      sampleRate:         16000,
+      channelCount:       1,
+    },
+    video: false,
+  });
+  audioTrack = localStream.getAudioTracks()[0];
+  audioTrack.enabled = false; // muted until PTT
+  return localStream;
+}
+
+// ─── STEP 1: Alpha generates offer ───
+async function generateOffer() {
+  setStatus('ACQUIRING MICROPHONE...', false);
+  addLog('Generating offer SDP...', 'info', 'RTC');
+  try {
+    const stream = await getMic();
+    if (pc) { pc.close(); pc = null; }
+    APP.contacts = [];
+    pc = createPC();
+    stream.getTracks().forEach(t => pc.addTrack(t, stream));
+
+    setStatus('CREATING OFFER SDP...', false);
+    const offer = await pc.createOffer({ offerToReceiveAudio: true });
+    await pc.setLocalDescription(offer);
+
+    setStatus('GATHERING ICE CANDIDATES...', false);
+    toast('GATHERING NETWORK INFO — PLEASE WAIT...');
+    await waitForICE(pc);
+
+    const sdpBundle = { type: pc.localDescription.type, sdp: pc.localDescription.sdp };
+    const encoded   = btoa(JSON.stringify(sdpBundle));
+    offerCode       = encoded;
+
+    const el = document.getElementById('offer-display');
+    el.textContent = encoded;
+    el.classList.remove('empty');
+    // Re-add copy hint
+    const hint = document.createElement('span');
+    hint.className = 'code-hint'; hint.textContent = 'TAP TO COPY';
+    el.appendChild(hint);
+
+    setStatus('OFFER READY — SEND CODE TO BRAVO', false);
+    toast('CODE READY — COPY AND TRANSMIT TO BRAVO');
+    document.getElementById('stab-1').classList.add('done');
+    addLog('Offer generated. Awaiting Bravo response.', 'info', 'RTC');
+  } catch(e) {
+    setStatus('ERROR: ' + e.message, false);
+    toast('FAILED — CHECK MICROPHONE PERMISSION', 'red');
+    addLog('Offer failed: ' + e.message, 'warn', 'RTC');
+    console.error(e);
+  }
+}
+
+// ─── STEP 2: Bravo generates answer ───
+async function generateAnswer() {
+  const raw = document.getElementById('offer-input').value.trim();
+  if (!raw) { toast('PASTE ALPHA CODE FIRST', 'amber'); return; }
+
+  let offerObj;
+  try { offerObj = JSON.parse(atob(raw)); } catch(e) { toast('INVALID CODE', 'red'); return; }
+  if (offerObj.type !== 'offer') { toast('NOT AN OFFER CODE', 'red'); return; }
+
+  setStatus('ACQUIRING MICROPHONE...', false);
+  addLog('Processing Alpha offer...', 'info', 'RTC');
+  try {
+    const stream = await getMic();
+    if (pc) { pc.close(); pc = null; }
+    APP.contacts = [];
+    pc = createPC();
+    stream.getTracks().forEach(t => pc.addTrack(t, stream));
+
+    setStatus('PROCESSING OFFER...', false);
+    await pc.setRemoteDescription(new RTCSessionDescription(offerObj));
+
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+
+    setStatus('GATHERING ICE CANDIDATES...', false);
+    toast('GATHERING NETWORK INFO — PLEASE WAIT...');
+    await waitForICE(pc);
+
+    const sdpBundle = { type: pc.localDescription.type, sdp: pc.localDescription.sdp };
+    const encoded   = btoa(JSON.stringify(sdpBundle));
+
+    const el = document.getElementById('answer-display');
+    el.textContent = encoded;
+    el.classList.remove('empty');
+    const hint = document.createElement('span');
+    hint.className = 'code-hint'; hint.textContent = 'TAP TO COPY';
+    el.appendChild(hint);
+
+    // SHOW confirm bar — panel stays open
+    document.getElementById('bravo-confirm-bar').classList.add('show');
+
+    setStatus('RESPONSE READY — COPY AND SEND TO ALPHA', false);
+    toast('COPY RESPONSE CODE AND SEND TO ALPHA');
+
+    if (APP.saveBravo) sessionSave('bravo', raw);
+    document.getElementById('stab-2').classList.add('done');
+    addLog('Answer generated. Send response to Alpha.', 'info', 'RTC');
+  } catch(e) {
+    setStatus('ERROR: ' + e.message, false);
+    toast('FAILED — CHECK CODE', 'red');
+    addLog('Answer failed: ' + e.message, 'warn', 'RTC');
+    console.error(e);
+  }
+}
+
+function bravoCopyConfirmed() {
+  document.getElementById('bravo-confirm-bar').classList.remove('show');
+  showStep(3);
+  document.getElementById('step3-inst').innerHTML =
+    '<strong>YOU ARE BRAVO.</strong> Response code sent. Awaiting Alpha to confirm connection. ' +
+    'Channel will open automatically when Alpha connects.';
+  // Remove the answer input from step 3 for Bravo
+  const ta = document.getElementById('answer-input');
+  if (ta) ta.style.display = 'none';
+  const btn = ta?.parentElement?.querySelector('.mbtn.go');
+  if (btn) btn.style.display = 'none';
+  toast('STANDBY — WAITING FOR ALPHA TO CONFIRM');
+  addLog('Bravo confirmed code sent. Awaiting Alpha.', 'info', 'RTC');
+}
+
+// ─── STEP 3: Alpha applies answer ───
+async function connectWithAnswer() {
+  const raw = document.getElementById('answer-input').value.trim();
+  if (!raw) { toast('PASTE BRAVO RESPONSE CODE', 'amber'); return; }
+  if (!pc)  { toast('COMPLETE STEP 1 FIRST', 'amber'); return; }
+
+  let ansObj;
+  try { ansObj = JSON.parse(atob(raw)); } catch(e) { toast('INVALID CODE', 'red'); return; }
+  if (ansObj.type !== 'answer') { toast('NOT A RESPONSE CODE', 'red'); return; }
+
+  setStatus('APPLYING ANSWER...', false);
+  try {
+    await pc.setRemoteDescription(new RTCSessionDescription(ansObj));
+    setStatus('HANDSHAKING — CHANNEL OPENING...', false);
+    toast('CONNECTING...');
+    if (APP.saveAlpha && offerCode) sessionSave('alpha', offerCode);
+    document.getElementById('stab-3').classList.add('done');
+    addLog('Answer applied. Awaiting ICE connection.', 'info', 'RTC');
+  } catch(e) {
+    setStatus('CONNECT FAILED: ' + e.message, false);
+    toast('CONNECTION FAILED — VERIFY CODES', 'red');
+    addLog('Connect failed: ' + e.message, 'warn', 'RTC');
+    console.error(e);
+  }
+}
+
+// ── CONNECTION ESTABLISHED ──
+function onConnected() {
+  if (APP.connected) return;
+  APP.connected   = true;
+  APP.connectedAt = Date.now();
+
+  setStatus('CHANNEL SECURE — MONITORING', true);
+  document.getElementById('ptt-btn').disabled = false;
+  document.getElementById('sig-bars').classList.add('live');
+  document.getElementById('enc-light').classList.add('active');
+  document.getElementById('tc-mode').textContent = 'ACTIVE';
+  document.getElementById('tc-mode').classList.add('on');
+  document.getElementById('tc-audio').textContent = 'LISTEN';
+  document.getElementById('badge-conn').textContent = 'LIVE';
+  document.getElementById('badge-conn').classList.add('green');
+  document.getElementById('ptt-hint').classList.add('show');
+
+  // Extract peer IP for radar
+  setTimeout(() => extractPeerIP(), 1500);
+
+  startKeepAlive();
+  startWebRTCStatsPoll();
+  playConnectedAudio();
+  closeConnModal();
+  toast('CHANNEL OPEN — HOLD TO TRANSMIT');
+  addLog('SECURE CHANNEL ESTABLISHED', 'info', 'CONN');
+}
+
+// ── DISCONNECTED ──
+function onDisconnected() {
+  if (!APP.connected) return;
+  APP.connected   = false;
+  APP.connectedAt = null;
+
+  setStatus('PEER DISCONNECTED', false);
+  document.getElementById('ptt-btn').disabled = true;
+  document.getElementById('sig-bars').classList.remove('live');
+  document.getElementById('enc-light').classList.remove('active');
+  document.getElementById('tc-mode').textContent = 'STANDBY';
+  document.getElementById('tc-mode').classList.remove('on');
+  document.getElementById('tc-audio').textContent = 'MUTED';
+  document.getElementById('tc-audio').classList.remove('on');
+  document.getElementById('badge-conn').textContent = 'P2P';
+  document.getElementById('badge-conn').classList.remove('green');
+  document.getElementById('ptt-hint').classList.remove('show');
+
+  if (APP.transmitting) txOff();
+  stopVUMeter();
+
+  if (silentOsc) { try { silentOsc.stop(); } catch(e) {} silentOsc = null; }
+  if (wakeLockHandle) { wakeLockHandle.release().catch(() => {}); wakeLockHandle = null; }
+
+  beep(440, 0.07, 'square', 0.1);
+  setTimeout(() => beep(300, 0.15, 'square', 0.1), 75);
+  toast('CONNECTION LOST', 'red');
+  addLog('PEER DISCONNECTED', 'warn', 'CONN');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  WEBRTC STATS POLLING — real data
+// ══════════════════════════════════════════════════════════════
+let statsInterval = null;
+
+function startWebRTCStatsPoll() {
+  clearInterval(statsInterval);
+  statsInterval = setInterval(async () => {
+    if (!pc || !APP.connected) return;
+    try {
+      const stats = await pc.getStats();
+      stats.forEach(r => {
+        // Outbound RTP (our TX)
+        if (r.type === 'outbound-rtp' && r.kind === 'audio') {
+          const pktDelta  = r.packetsSent - (prevStats.packetsSent || 0);
+          const byteDelta = r.bytesSent   - (prevStats.bytesSent   || 0);
+          prevStats.packetsSent = r.packetsSent;
+          prevStats.bytesSent   = r.bytesSent;
+          document.getElementById('stat-pktx').textContent = r.packetsSent.toLocaleString();
+          document.getElementById('stat-btx').textContent  = formatBytes(r.bytesSent);
+          if (r.codecId) {
+            const codecStat = stats.get ? stats.get(r.codecId) : null;
+            if (codecStat) {
+              document.getElementById('stat-codec').textContent =
+                (codecStat.mimeType || '').replace('audio/','').toUpperCase();
+            }
+          }
+        }
+
+        // Inbound RTP (peer TX)
+        if (r.type === 'inbound-rtp' && r.kind === 'audio') {
+          const pktDelta  = r.packetsReceived - (prevStats.packetsReceived || 0);
+          const byteDelta = r.bytesReceived   - (prevStats.bytesReceived   || 0);
+          prevStats.packetsReceived = r.packetsReceived;
+          prevStats.bytesReceived   = r.bytesReceived;
+          document.getElementById('stat-pkrx').textContent = r.packetsReceived.toLocaleString();
+          document.getElementById('stat-brx').textContent  = formatBytes(r.bytesReceived);
+
+          const jitter = r.jitter ? (r.jitter * 1000).toFixed(1) : '—';
+          const jEl = document.getElementById('stat-jitter');
+          jEl.textContent = jitter + (jitter !== '—' ? ' ms' : '');
+          jEl.className = 'stat-val ' + (parseFloat(jitter) < 20 ? 'good' : parseFloat(jitter) < 50 ? 'warn' : 'bad');
+
+          // Packet loss
+          if (r.packetsLost !== undefined && r.packetsReceived > 0) {
+            const total = r.packetsReceived + r.packetsLost;
+            const lossP = total > 0 ? (r.packetsLost / total * 100).toFixed(1) : '0.0';
+            document.getElementById('hbv-loss').textContent = lossP + '%';
+            const lossBar = 100 - Math.min(100, parseFloat(lossP) * 10);
+            updateHealthBar('loss', lossBar,
+              parseFloat(lossP) < 1 ? 'var(--g-bright)' : parseFloat(lossP) < 5 ? 'var(--a-bright)' : 'var(--r-bright)',
+              lossP + '%'
+            );
+          }
+        }
+
+        // Candidate pair — RTT + latency
+        if (r.type === 'candidate-pair' && r.state === 'succeeded') {
+          if (r.currentRoundTripTime !== undefined) {
+            const ms  = Math.round(r.currentRoundTripTime * 1000);
+            const rttEl = document.getElementById('stat-rtt');
+            rttEl.textContent = ms + ' ms';
+            rttEl.className = 'stat-val ' + (ms < 80 ? 'good' : ms < 200 ? 'warn' : 'bad');
+            document.getElementById('tc-lat').textContent = ms + 'ms';
+            document.getElementById('tc-lat').className = 'tcel-val' + (ms < 80 ? ' on' : ms < 200 ? ' warn' : ' err');
+            const latPct = Math.max(5, 100 - ms);
+            updateHealthBar('latency', latPct,
+              ms < 80 ? 'var(--g-bright)' : ms < 200 ? 'var(--a-bright)' : 'var(--r-bright)',
+              ms + 'ms'
+            );
+          }
+          if (r.availableOutgoingBitrate) {
+            const kbps = Math.round(r.availableOutgoingBitrate / 1000);
+            // Store for display
+          }
+        }
+
+        // Track stats — sample rate, channels
+        if (r.type === 'track' && r.kind === 'audio') {
+          if (r.audioSamplesReceived) {
+            document.getElementById('stat-sample').textContent = '16 kHz';
+          }
+        }
+      });
+    } catch(e) {}
+  }, 2500);
+}
+
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+  return (b / 1048576).toFixed(2) + ' MB';
+}
+
+// ══════════════════════════════════════════════════════════════
+//  PTT LOGIC
+// ══════════════════════════════════════════════════════════════
+const pttBtn = document.getElementById('ptt-btn');
+
+function txOff() {
+  if (!APP.transmitting) return;
+  APP.transmitting = false;
+  if (audioTrack) audioTrack.enabled = false;
+  pttBtn.classList.remove('transmitting');
+  setStatus('CHANNEL SECURE — MONITORING', true);
+  document.getElementById('tc-audio').textContent = 'LISTEN';
+  document.getElementById('tc-audio').classList.remove('on');
+  document.getElementById('ptt-hint').classList.add('show');
+  beepTxEnd();
+  stopVUMeter();
+  addLog('TX END', 'tx', 'PTT');
+}
+
+// Touch events (primary — mobile)
+pttBtn.addEventListener('touchstart', e => { e.preventDefault(); txOn(); }, { passive: false });
+pttBtn.addEventListener('touchend',   e => { e.preventDefault(); txOff(); }, { passive: false });
+pttBtn.addEventListener('touchcancel',e => { e.preventDefault(); txOff(); }, { passive: false });
+// Mouse events (desktop / testing)
+pttBtn.addEventListener('mousedown', e => { e.preventDefault(); txOn(); });
+pttBtn.addEventListener('mouseup',   () => txOff());
+pttBtn.addEventListener('mouseleave',() => { if (APP.transmitting) txOff(); });
+// Space bar
+document.addEventListener('keydown', e => { if (e.code === 'Space' && !e.repeat) txOn(); });
+document.addEventListener('keyup',   e => { if (e.code === 'Space') txOff(); });
+
+// ══════════════════════════════════════════════════════════════
+//  VU METER
+// ══════════════════════════════════════════════════════════════
+function startVUMeter() {
+  if (!localStream) return;
+  try {
+    const ctx  = getACtx();
+    analyserMic = ctx.createAnalyser();
+    analyserMic.fftSize = 256;
+    ctx.createMediaStreamSource(localStream).connect(analyserMic);
+    const bars  = document.querySelectorAll('#vu-meter .vu-bar');
+    const buf   = new Uint8Array(analyserMic.frequencyBinCount);
+    document.getElementById('vu-meter').classList.add('active');
+    clearInterval(vuInterval);
+    vuInterval = setInterval(() => {
+      analyserMic.getByteFrequencyData(buf);
+      bars.forEach((bar, i) => {
+        const v = buf[Math.floor(i * buf.length / bars.length)] / 255;
+        bar.style.height = Math.max(3, v * 20) + 'px';
+      });
+    }, 50);
+  } catch(e) {}
+}
+function stopVUMeter() {
+  clearInterval(vuInterval);
+  document.getElementById('vu-meter').classList.remove('active');
+  document.querySelectorAll('#vu-meter .vu-bar').forEach(b => b.style.height = '3px');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  WAVEFORM CANVAS
+// ══════════════════════════════════════════════════════════════
+function initWaveCanvas() {
+  const cv  = document.getElementById('wave-canvas');
+  const ctx = cv.getContext('2d');
+  const W   = cv.width;
+  const H   = cv.height;
+  let phase = 0;
+
+  function drawWave() {
+    waveAnimId = requestAnimationFrame(drawWave);
+    ctx.clearRect(0, 0, W, H);
+
+    if (!APP.settings.waveform) return;
+
+    if (waveAnalyser && APP.transmitting) {
+      // Real waveform
+      const buf = new Uint8Array(waveAnalyser.fftSize);
+      waveAnalyser.getByteTimeDomainData(buf);
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(57,255,20,0.9)';
+      ctx.lineWidth   = 1.5;
+      for (let i = 0; i < buf.length; i++) {
+        const x = (i / buf.length) * W;
+        const y = (buf[i] / 255) * H;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    } else {
+      // Idle sine
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(57,255,20,0.18)';
+      ctx.lineWidth   = 1;
+      for (let x = 0; x < W; x++) {
+        const y = H / 2 + Math.sin((x / W) * Math.PI * 5 + phase) * 3;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      phase += 0.04;
+    }
+  }
+  drawWave();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SPECTRUM ANALYZER
+// ══════════════════════════════════════════════════════════════
+function initSpectrumCanvas() {
+  const cv  = document.getElementById('spec-canvas');
+  const ctx = cv.getContext('2d');
+  const W   = cv.width;
+  const H   = cv.height;
+  const N   = 32; // bars
+  let decayBuf = new Float32Array(N).fill(0);
+
+  function draw() {
+    requestAnimationFrame(draw);
+    ctx.clearRect(0, 0, W, H);
+
+    let freqData = null;
+    if (analyserSpec) {
+      const buf = new Uint8Array(analyserSpec.frequencyBinCount);
+      analyserSpec.getByteFrequencyData(buf);
+      freqData = buf;
+    }
+
+    const bw = W / N - 1;
+    for (let i = 0; i < N; i++) {
+      let v = freqData ? freqData[Math.floor(i * freqData.length / N)] / 255 : 0;
+      // Decay
+      decayBuf[i] = Math.max(v, decayBuf[i] * 0.88);
+      v = decayBuf[i];
+
+      const barH = Math.max(2, v * H);
+      const x    = i * (bw + 1);
+      const grad = ctx.createLinearGradient(0, H, 0, H - barH);
+      grad.addColorStop(0, 'rgba(57,255,20,0.85)');
+      grad.addColorStop(0.7, 'rgba(57,255,20,0.4)');
+      grad.addColorStop(1,   'rgba(57,255,20,0.1)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(x, H - barH, bw, barH);
+    }
+  }
+  draw();
+}
+
+// Connect mic to spectrum when transmitting
+function attachMicToSpectrum(stream) {
+  try {
+    const ctx    = getACtx();
+    analyserSpec = ctx.createAnalyser();
+    analyserSpec.fftSize = 512;
+    waveAnalyser = ctx.createAnalyser();
+    waveAnalyser.fftSize = 1024;
+    const src = ctx.createMediaStreamSource(stream);
+    src.connect(analyserSpec);
+    src.connect(waveAnalyser);
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════════════════════════
+//  RADAR ENGINE — dual canvas, real ICE data
+// ══════════════════════════════════════════════════════════════
+const RADAR_MODES = { sweep: 'SWEEP MODE', sector: 'SECTOR SCAN', track: 'TRACK MODE' };
+
+function setRadarMode(mode) {
+  APP.radarMode = mode;
+  document.getElementById('radar-mode-lbl').textContent = RADAR_MODES[mode] || mode.toUpperCase();
+  ['sweep','sector','track'].forEach(m => {
+    const btn = document.getElementById('radar-' + m + '-btn');
+    if (btn) btn.className = 'mbtn' + (m === mode ? ' go' : '');
+  });
+}
+
+function initRadar() {
+  const cv  = document.getElementById('radar-canvas');
+  const ctx = cv.getContext('2d');
+  const W   = cv.width;
+  const H   = cv.height;
+  const R   = W / 2;
+
+  let sweepAngle  = 0;
+  let sectorAngle = -Math.PI / 4;
+  let sectorDir   = 1;
+
+  // Radar "echo" trail: store previous positions to fade
+  const trail = new Float32Array(180).fill(0);
+  let trailIdx = 0;
+
+  function drawRadar() {
+    requestAnimationFrame(drawRadar);
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Background
+    ctx.beginPath();
+    ctx.arc(R, R, R, 0, Math.PI * 2);
+    ctx.fillStyle = '#010502';
+    ctx.fill();
+
+    // Concentric rings
+    const ringColors = ['rgba(15,30,10,0.9)', 'rgba(20,40,14,0.7)', 'rgba(26,50,18,0.5)'];
+    for (let i = 1; i <= 3; i++) {
+      ctx.beginPath();
+      ctx.arc(R, R, (R - 2) * i / 3, 0, Math.PI * 2);
+      ctx.strokeStyle = ringColors[i - 1] || 'rgba(20,40,14,0.5)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // Grid lines (cross + diagonals)
+    ctx.strokeStyle = 'rgba(15,30,10,0.7)';
+    ctx.lineWidth   = 0.8;
+    const gridAngles = [0, Math.PI / 4, Math.PI / 2, 3 * Math.PI / 4];
+    gridAngles.forEach(a => {
+      ctx.beginPath();
+      ctx.moveTo(R + Math.cos(a) * R, R + Math.sin(a) * R);
+      ctx.lineTo(R + Math.cos(a + Math.PI) * R, R + Math.sin(a + Math.PI) * R);
+      ctx.stroke();
+    });
+
+    // Degree tick marks
+    for (let a = 0; a < 360; a += 10) {
+      const rad   = a * Math.PI / 180;
+      const inner = a % 30 === 0 ? R - 8 : R - 5;
+      ctx.beginPath();
+      ctx.moveTo(R + Math.cos(rad) * inner, R + Math.sin(rad) * inner);
+      ctx.lineTo(R + Math.cos(rad) * (R - 2), R + Math.sin(rad) * (R - 2));
+      ctx.strokeStyle = a % 90 === 0 ? 'rgba(57,255,20,0.3)' : 'rgba(20,40,14,0.5)';
+      ctx.lineWidth   = 0.7;
+      ctx.stroke();
+    }
+
+    // ── SWEEP MODE ──
+    if (APP.radarMode === 'sweep') {
+      ctx.save();
+      ctx.translate(R, R);
+      ctx.rotate(sweepAngle);
+      // Sweep fan
+      const sweepGrad = ctx.createConicalGradient
+        ? null // browser support varies
+        : null;
+      // Fallback: linear approximation
+      const fan = ctx.createLinearGradient(0, 0, R - 3, 0);
+      fan.addColorStop(0, 'rgba(57,255,20,0.45)');
+      fan.addColorStop(1, 'rgba(57,255,20,0.0)');
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, R - 3, -0.35, 0);
+      ctx.fillStyle = fan;
+      ctx.fill();
+      // Sweep line
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(R - 3, 0);
+      ctx.strokeStyle = 'rgba(57,255,20,0.95)';
+      ctx.lineWidth   = 1.5;
+      ctx.stroke();
+      ctx.restore();
+      sweepAngle += 0.027;
+
+    // ── SECTOR MODE ──
+    } else if (APP.radarMode === 'sector') {
+      const spread = Math.PI / 4;
+      ctx.save();
+      ctx.translate(R, R);
+      ctx.rotate(sectorAngle);
+      const sectorGrad = ctx.createLinearGradient(0, 0, R - 3, 0);
+      sectorGrad.addColorStop(0, 'rgba(57,255,20,0.35)');
+      sectorGrad.addColorStop(1, 'rgba(57,255,20,0.0)');
+      // Left and right beams
+      [-spread / 2, spread / 2].forEach(offset => {
+        ctx.save();
+        ctx.rotate(offset);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(R - 3, 0);
+        ctx.strokeStyle = 'rgba(57,255,20,0.6)';
+        ctx.lineWidth   = 1.2;
+        ctx.stroke();
+        ctx.restore();
+      });
+      // Sector fill
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, R - 3, -spread / 2, spread / 2);
+      ctx.fillStyle = sectorGrad;
+      ctx.fill();
+      ctx.restore();
+      sectorAngle += 0.015 * sectorDir;
+      if (Math.abs(sectorAngle) > Math.PI / 3) sectorDir *= -1;
+
+    // ── TRACK MODE ──
+    } else if (APP.radarMode === 'track') {
+      // Slow sweep + highlight tracked contacts
+      ctx.save();
+      ctx.translate(R, R);
+      ctx.rotate(sweepAngle * 0.4);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(R - 3, 0);
+      ctx.strokeStyle = 'rgba(57,255,20,0.7)';
+      ctx.lineWidth   = 1.2;
+      ctx.stroke();
+      ctx.restore();
+      sweepAngle += 0.012;
+
+      // Target lock circles on contacts
+      if (APP.settings.radarContacts) {
+        APP.contacts.filter(c => c.type === 'peer').forEach(c => {
+          const cx = R + Math.cos(c.angle) * c.radius * (R - 10);
+          const cy = R + Math.sin(c.angle) * c.radius * (R - 10);
+          ctx.beginPath();
+          ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(0,229,255,0.5)';
+          ctx.lineWidth   = 1;
+          ctx.stroke();
+          // Corner ticks
+          [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dx,dy]) => {
+            ctx.beginPath();
+            ctx.moveTo(cx + dx * 6, cy + dy * 6);
+            ctx.lineTo(cx + dx * 10, cy + dy * 6);
+            ctx.lineTo(cx + dx * 10, cy + dy * 10);
+            ctx.strokeStyle = 'rgba(0,229,255,0.7)';
+            ctx.lineWidth   = 1;
+            ctx.stroke();
+          });
+        });
+      }
+    }
+
+    // ── DRAW CONTACTS (all modes) ──
+    if (APP.settings.radarContacts) {
+      APP.contacts.forEach(c => {
+        c.age = (c.age || 0) + 1;
+
+        // Fade based on sweep proximity
+        const angleDiff = Math.abs(((sweepAngle - c.angle) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2));
+        if (angleDiff < 0.3) c.age = 0;
+
+        const fade   = Math.max(0, 1 - c.age / 80);
+        if (fade < 0.02) return;
+
+        const cx = R + Math.cos(c.angle) * c.radius * (R - 12);
+        const cy = R + Math.sin(c.angle) * c.radius * (R - 12);
+
+        let color = '';
+        if (c.type === 'local')  color = `rgba(57,255,20,${fade})`;
+        else if (c.type === 'stun')  color = `rgba(255,184,0,${fade})`;
+        else if (c.type === 'peer')  color = `rgba(0,229,255,${fade})`;
+        else if (c.type === 'relay') color = `rgba(255,42,42,${fade})`;
+
+        // Blip
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        // Glow halo
+        const glo = ctx.createRadialGradient(cx, cy, 0, cx, cy, 8);
+        glo.addColorStop(0, color);
+        glo.addColorStop(1, 'transparent');
+        ctx.beginPath();
+        ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+        ctx.fillStyle = glo;
+        ctx.fill();
+
+        // Label
+        if (fade > 0.4) {
+          ctx.font        = '7px Share Tech Mono, monospace';
+          ctx.fillStyle   = color;
+          ctx.fillText(c.label, cx + 5, cy - 5);
+        }
+      });
+    }
+
+    // Outer ring border
+    ctx.beginPath();
+    ctx.arc(R, R, R - 1, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(57,255,20,0.14)';
+    ctx.lineWidth   = 2;
+    ctx.stroke();
+
+    // Center dot
+    ctx.beginPath();
+    ctx.arc(R, R, 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(57,255,20,0.8)';
+    ctx.fill();
+  }
+
+  drawRadar();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  NETWORK TOPOLOGY CANVAS
+// ══════════════════════════════════════════════════════════════
+function startTopoCanvas() {
+  const cv  = document.getElementById('topo-canvas');
+  const ctx = cv.getContext('2d');
+  const W   = cv.width;
+  const H   = cv.height;
+
+  // Fixed node positions
+  const NODE_LOCAL  = { x: 60,        y: H / 2, type: 'local',  label: 'YOU'   };
+  const NODE_STUN1  = { x: W * 0.38,  y: 20,    type: 'stun',   label: 'STUN1' };
+  const NODE_STUN2  = { x: W * 0.38,  y: H - 20,type: 'stun',   label: 'STUN2' };
+  const NODE_PEER   = { x: W - 60,    y: H / 2, type: 'peer',   label: 'PEER'  };
+  const NODE_RELAY  = { x: W * 0.62,  y: 20,    type: 'relay',  label: 'RELAY' };
+
+  const NODE_COLORS = {
+    local: '#39ff14', stun: '#ffb800', peer: '#00e5ff', relay: '#ff2a2a'
+  };
+
+  let pulsePhase = 0;
+
+  function drawTopo() {
+    requestAnimationFrame(drawTopo);
+    ctx.clearRect(0, 0, W, H);
+
+    pulsePhase += 0.04;
+
+    const nodes = [NODE_LOCAL, NODE_STUN1, NODE_STUN2, NODE_PEER];
+    const connected = APP.connected;
+
+    // ── Draw connections ──
+    const edges = [
+      [NODE_LOCAL, NODE_STUN1],
+      [NODE_LOCAL, NODE_STUN2],
+      connected ? [NODE_LOCAL, NODE_PEER] : null,
+      connected ? [NODE_PEER, NODE_STUN1] : null,
+    ].filter(Boolean);
+
+    edges.forEach(([a, b]) => {
+      const isPeerEdge = (a === NODE_LOCAL && b === NODE_PEER) ||
+                         (a === NODE_PEER  && b === NODE_LOCAL);
+
+      // Animated dashes
+      ctx.save();
+      ctx.setLineDash([4, 4]);
+      ctx.lineDashOffset = -pulsePhase * 4;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.strokeStyle = isPeerEdge
+        ? `rgba(0,229,255,${0.4 + Math.sin(pulsePhase) * 0.15})`
+        : 'rgba(57,255,20,0.18)';
+      ctx.lineWidth   = isPeerEdge ? 1.5 : 1;
+      ctx.stroke();
+      ctx.restore();
+
+      // Packet animation on peer edge
+      if (isPeerEdge && APP.transmitting) {
+        const t  = (pulsePhase * 0.4) % 1;
+        const px = a.x + (b.x - a.x) * t;
+        const py = a.y + (b.y - a.y) * t;
+        ctx.beginPath();
+        ctx.arc(px, py, 3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,229,255,0.9)';
+        ctx.fill();
+      }
+    });
+
+    // ── Draw nodes ──
+    nodes.forEach(node => {
+      const color = NODE_COLORS[node.type] || '#888';
+      const glow  = node.type === 'peer' && connected
+        ? 0.5 + Math.sin(pulsePhase) * 0.2
+        : 0.3;
+
+      // Glow halo
+      const grad = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, 14);
+      grad.addColorStop(0, color.replace(')', `,${glow})`).replace('rgb', 'rgba'));
+      grad.addColorStop(1, 'transparent');
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, 14, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Node circle
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.lineWidth   = 1;
+      ctx.stroke();
+
+      // Label
+      ctx.font        = '7px Share Tech Mono, monospace';
+      ctx.fillStyle   = color;
+      ctx.textAlign   = 'center';
+      ctx.fillText(node.label, node.x, node.y + 16);
+
+      // IP under label
+      let ip = '';
+      if (node.type === 'local' && APP.localIP) ip = APP.localIP.substring(0, 12);
+      if (node.type === 'peer'  && APP.peerIP)  ip = APP.peerIP.substring(0, 12);
+      if (ip) {
+        ctx.font      = '6px Share Tech Mono, monospace';
+        ctx.fillStyle = 'rgba(150,192,128,0.5)';
+        ctx.fillText(ip, node.x, node.y + 23);
+      }
+    });
+    ctx.textAlign = 'left';
+  }
+  drawTopo();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  INTEL — CIPHER SYSTEM
+// ══════════════════════════════════════════════════════════════
+const ALGO_DESCS = {
+  xor:      'XOR cipher with Base64 encoding. Fast, symmetric, key-dependent.',
+  vigenere: 'Vigenere polyalphabetic substitution. Classical field cipher.',
+  caesar:   'Caesar+shift with key-derived offset and character rotation.',
+  multi:    'Multi-layer: XOR + Vigenere + Caesar combined. Maximum obscurity.',
+};
+
+function setAlgo(algo) {
+  APP.cipherAlgo = algo;
+  document.querySelectorAll('.algo-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('algo-' + algo).classList.add('active');
+  document.getElementById('algo-desc').textContent = ALGO_DESCS[algo] || '';
+  autoEncode(); autoDecode();
+}
+
+function getKey() {
+  return (document.getElementById('cipher-key').value || 'TACLINK7').toUpperCase();
+}
+
+// XOR + Base64
+function encodeXOR(text, key) {
+  const k   = key;
+  const out = [];
+  for (let i = 0; i < text.length; i++) {
+    out.push(text.charCodeAt(i) ^ k.charCodeAt(i % k.length));
+  }
+  return btoa(String.fromCharCode(...out));
+}
+function decodeXOR(enc, key) {
+  try {
+    const raw = atob(enc);
+    const k   = key;
+    let out   = '';
+    for (let i = 0; i < raw.length; i++) {
+      out += String.fromCharCode(raw.charCodeAt(i) ^ k.charCodeAt(i % k.length));
+    }
+    return out;
+  } catch(e) { return '[DECRYPTION FAILED — CHECK KEY]'; }
+}
+
+// Vigenere
+function encodeVigenere(text, key) {
+  const k = key.replace(/[^A-Z]/g, '');
+  if (!k.length) return encodeXOR(text, key); // fallback
+  let out = '', ki = 0;
+  for (let i = 0; i < text.length; i++) {
+    const c = text.charCodeAt(i);
+    if (c >= 32 && c < 127) {
+      const shift = k.charCodeAt(ki % k.length) - 65;
+      out += String.fromCharCode(32 + (c - 32 + shift) % 95);
+      ki++;
+    } else {
+      out += text[i];
+    }
+  }
+  return btoa(out);
+}
+function decodeVigenere(enc, key) {
+  try {
+    const raw = atob(enc);
+    const k   = key.replace(/[^A-Z]/g, '');
+    if (!k.length) return decodeXOR(enc, key);
+    let out = '', ki = 0;
+    for (let i = 0; i < raw.length; i++) {
+      const c = raw.charCodeAt(i);
+      if (c >= 32 && c < 127) {
+        const shift = k.charCodeAt(ki % k.length) - 65;
+        out += String.fromCharCode(32 + ((c - 32 - shift + 95 * 10)) % 95);
+        ki++;
+      } else {
+        out += raw[i];
+      }
+    }
+    return out;
+  } catch(e) { return '[DECRYPTION FAILED — CHECK KEY]'; }
+}
+
+// Caesar+
+function encodeCaesar(text, key) {
+  const shift = key.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 94;
+  let out = '';
+  for (let i = 0; i < text.length; i++) {
+    const c = text.charCodeAt(i);
+    if (c >= 33 && c < 127) out += String.fromCharCode(33 + (c - 33 + shift) % 94);
+    else out += text[i];
+  }
+  return btoa(out);
+}
+function decodeCaesar(enc, key) {
+  try {
+    const raw   = atob(enc);
+    const shift = key.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 94;
+    let out     = '';
+    for (let i = 0; i < raw.length; i++) {
+      const c = raw.charCodeAt(i);
+      if (c >= 33 && c < 127) out += String.fromCharCode(33 + ((c - 33 - shift + 94 * 10) % 94));
+      else out += raw[i];
+    }
+    return out;
+  } catch(e) { return '[DECRYPTION FAILED — CHECK KEY]'; }
+}
+
+// Multi-layer
+function encodeMulti(text, key) {
+  const s1 = encodeXOR(text, key);
+  const s2 = encodeVigenere(s1, key + 'MULTI');
+  const s3 = encodeCaesar(s2, key.split('').reverse().join(''));
+  return s3;
+}
+function decodeMulti(enc, key) {
+  try {
+    const s3 = decodeCaesar(enc, key.split('').reverse().join(''));
+    const s2 = decodeVigenere(s3, key + 'MULTI');
+    return decodeXOR(s2, key);
+  } catch(e) { return '[DECRYPTION FAILED — CHECK KEY]'; }
+}
+
+function cipherEncode(text, key) {
+  switch(APP.cipherAlgo) {
+    case 'vigenere': return encodeVigenere(text, key);
+    case 'caesar':   return encodeCaesar(text, key);
+    case 'multi':    return encodeMulti(text, key);
+    default:         return encodeXOR(text, key);
+  }
+}
+function cipherDecode(enc, key) {
+  switch(APP.cipherAlgo) {
+    case 'vigenere': return decodeVigenere(enc, key);
+    case 'caesar':   return decodeCaesar(enc, key);
+    case 'multi':    return decodeMulti(enc, key);
+    default:         return decodeXOR(enc, key);
+  }
+}
+
+function onKeyChange() {
+  const k  = getKey();
+  const s  = Math.min(5, Math.floor(k.length / 3));
+  const palettes = {
+    1: 'var(--r-bright)',
+    2: 'var(--a-bright)',
+    3: 'var(--a-mid)',
+    4: 'var(--g-dim)',
+    5: 'var(--g-bright)',
+  };
+  const labels = ['','VERY WEAK','WEAK','MODERATE','STRONG','VERY STRONG'];
+  for (let i = 1; i <= 5; i++) {
+    const b = document.getElementById('ks' + i);
+    b.style.background = i <= s ? palettes[s] : 'var(--bord-1)';
+  }
+  document.getElementById('key-strength-label').textContent =
+    'KEY STRENGTH: ' + (labels[s] || 'NOT SET');
+  autoEncode(); autoDecode();
+}
+
+function autoEncode() {
+  const text = document.getElementById('plain-input').value;
+  const el   = document.getElementById('encoded-output');
+  if (!text) {
+    el.textContent = 'ENCODED OUTPUT WILL APPEAR HERE...';
+    const h = document.createElement('span'); h.className='code-hint'; h.textContent='TAP TO COPY'; el.appendChild(h);
+    return;
+  }
+  try {
+    const enc = cipherEncode(text, getKey());
+    el.textContent = enc;
+    const h = document.createElement('span'); h.className='code-hint'; h.textContent='TAP TO COPY'; el.appendChild(h);
+  } catch(e) { el.textContent = '[ENCODING ERROR]'; }
+}
+
+function autoDecode() {
+  const text = document.getElementById('cipher-input').value.trim();
+  const el   = document.getElementById('decoded-output');
+  if (!text) { el.textContent = 'DECODED OUTPUT WILL APPEAR HERE...'; return; }
+  try {
+    el.textContent = cipherDecode(text, getKey());
+  } catch(e) { el.textContent = '[DECODING ERROR — CHECK KEY AND ALGORITHM]'; }
+}
+
+function copyEncoded() {
+  const el = document.getElementById('encoded-output');
+  const txt = el.textContent.replace('TAP TO COPY','').trim();
+  if (!txt || txt.includes('WILL APPEAR')) return;
+  copyToClipboard(txt); toast('CIPHERTEXT COPIED');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  FREQUENCY DISPLAY
+// ══════════════════════════════════════════════════════════════
+const FREQ_BANDS = {
+  frs:  ['462.5625','462.5875','462.6125','462.6375','462.6625','462.6875','462.7125'],
+  gmrs: ['467.5625','467.5875','467.6125','467.6375','467.6625'],
+  mil:  ['150.775','151.505','152.105','153.350','154.455'],
+  uhf:  ['400.650','401.125','402.340','403.775','405.100'],
+};
+let freqSweepIdx = 0;
+
+setInterval(() => {
+  if (APP.connected) return;
+  const band = FREQ_BANDS[APP.freqBand] || FREQ_BANDS.frs;
+  freqSweepIdx = (freqSweepIdx + 1) % band.length;
+  document.getElementById('freq-val').textContent = band[freqSweepIdx];
+}, 3500);
+
+function onFreqBandChange() {
+  APP.freqBand = document.getElementById('freq-band-sel').value;
+  freqSweepIdx = 0;
+  const band = FREQ_BANDS[APP.freqBand] || FREQ_BANDS.frs;
+  document.getElementById('freq-val').textContent = band[0];
+}
+
+// ══════════════════════════════════════════════════════════════
+//  COMMS LOG
+// ══════════════════════════════════════════════════════════════
+const logEntries = [];
+
+function addLog(msg, type = 'info', tag = 'SYS') {
+  const entry = { ts: nowStr(), msg, type, tag };
+  logEntries.push(entry);
+  if (logEntries.length > 500) logEntries.shift();
+  renderLog();
+}
+
+function renderLog() {
+  const log = document.getElementById('comms-log');
+  const filter = APP.logFilter;
+  const visible = filter === 'all' ? logEntries : logEntries.filter(e => e.type === filter);
+  log.innerHTML = '';
+  visible.slice(-60).forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'log-entry' + (e.type === 'info' ? ' highlight' : '');
+    div.innerHTML = `
+      <span class="log-ts">${e.ts}</span>
+      <span class="log-tag ${e.type}">${e.tag}</span>
+      <span class="log-msg">${e.msg}</span>
+    `;
+    log.appendChild(div);
+  });
+  log.scrollTop = log.scrollHeight;
+}
+
+function setLogFilter(f, btn) {
+  APP.logFilter = f;
+  document.querySelectorAll('.log-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLog();
+}
+
+function clearLog() {
+  logEntries.length = 0;
+  renderLog();
+  addLog('Log cleared', 'info', 'SYS');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════════════════════
+function toggleSetting(key) {
+  APP.settings[key] = !APP.settings[key];
+  const el = document.getElementById('set-' + key);
+  if (el) el.classList.toggle('on', APP.settings[key]);
+}
+
+function toggleSave(role) {
+  if (role === 'alpha') {
+    APP.saveAlpha = !APP.saveAlpha;
+    document.getElementById('tog-alpha').classList.toggle('on', APP.saveAlpha);
+  } else {
+    APP.saveBravo = !APP.saveBravo;
+    document.getElementById('tog-bravo').classList.toggle('on', APP.saveBravo);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  UI HELPERS — PANEL / MODAL MANAGEMENT
+// ══════════════════════════════════════════════════════════════
+function togglePanel() {
+  const panel   = document.getElementById('side-panel');
+  const overlay = document.getElementById('panel-overlay');
+  const menuBtn = document.getElementById('menu-btn');
+  const isOpen  = panel.classList.contains('open');
+  panel.classList.toggle('open', !isOpen);
+  overlay.classList.toggle('open', !isOpen);
+  menuBtn.classList.toggle('open', !isOpen);
+}
+
+function openPanel(tab) {
+  togglePanel();
+  switchPanelTab(tab);
+}
+
+function switchPanelTab(name) {
+  document.querySelectorAll('.panel-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
+  const page = document.getElementById('page-' + name);
+  if (page) page.classList.add('active');
+  // Find and activate corresponding tab button
+  const tabs = ['radar','systems','intel','log','settings'];
+  const btns = document.querySelectorAll('.ptab');
+  const idx  = tabs.indexOf(name);
+  if (idx >= 0 && btns[idx]) btns[idx].classList.add('active');
+}
+
+function openConnModal() {
+  document.getElementById('conn-modal').classList.add('open');
+}
+function closeConnModal() {
+  document.getElementById('conn-modal').classList.remove('open');
+}
+function closeConnOnOverlay(e) {
+  if (e.target === document.getElementById('conn-modal')) closeConnModal();
+}
+
+function showStep(n) {
+  [1, 2, 3].forEach(i => {
+    const body = document.getElementById('step-' + i);
+    const tab  = document.getElementById('stab-' + i);
+    body.classList.toggle('active', i === n);
+    tab.classList.toggle('active', i === n);
+  });
+}
+
+function setStatus(msg, connected) {
+  document.getElementById('status-msg').textContent = msg;
+  const dot = document.getElementById('status-dot');
+  dot.className = 'status-dot';
+  if (connected && APP.transmitting) dot.classList.add('tx');
+  else if (connected) dot.classList.add('live');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  COPY UTILITIES
+// ══════════════════════════════════════════════════════════════
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+
+function copyOffer() {
+  const el  = document.getElementById('offer-display');
+  const txt = el.textContent.replace('TAP TO COPY', '').trim();
+  if (!txt || txt.includes('AWAITING')) { toast('GENERATE CODE FIRST', 'amber'); return; }
+  copyToClipboard(txt);
+  el.classList.add('copied');
+  setTimeout(() => el.classList.remove('copied'), 800);
+  toast('OFFER CODE COPIED — TRANSMIT TO BRAVO');
+}
+
+function copyAnswer() {
+  const el  = document.getElementById('answer-display');
+  const txt = el.textContent.replace('TAP TO COPY','').replace('RESPONSE CODE WILL APPEAR HERE','').trim();
+  if (!txt) { toast('GENERATE RESPONSE FIRST', 'amber'); return; }
+  copyToClipboard(txt);
+  el.classList.add('copied');
+  setTimeout(() => el.classList.remove('copied'), 800);
+  toast('RESPONSE CODE COPIED — TRANSMIT TO ALPHA');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  TOAST NOTIFICATIONS
+// ══════════════════════════════════════════════════════════════
+function toast(msg, type = '') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  container.appendChild(el);
+  // Animate in
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => el.classList.add('show'));
+  });
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 300);
+  }, 3200);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  STARTUP
+// ══════════════════════════════════════════════════════════════
+runBootSequence();
+
+// Attach mic to spectrum analyser on first TX so waveform works
+const _origTxOn = txOn;
+function txOn() {
+  if (!APP.connected || APP.transmitting) return;
+  getACtx();
+  // Attach spectrum analyser first time
+  if (localStream && !analyserSpec) attachMicToSpectrum(localStream);
+  APP.transmitting = true;
+  if (audioTrack) audioTrack.enabled = true;
+  pttBtn.classList.add('transmitting');
+  setStatus('TRANSMITTING — CHANNEL ACTIVE', true);
+  document.getElementById('tc-audio').textContent = 'TX LIVE';
+  document.getElementById('tc-audio').classList.add('on');
+  document.getElementById('ptt-hint').classList.remove('show');
+  beepTxStart();
+  startVUMeter();
+  addLog('TX START', 'tx', 'PTT');
+}
+
+</script>
+</body>
+</html>
